@@ -3,9 +3,12 @@ README.md
 config.py
 setup.py
 BODtoJSON/BODtoJSON.py
+BODtoJSON/__init__.py
 BODtoJSON.egg-info/PKG-INFO
 BODtoJSON.egg-info/SOURCES.txt
 BODtoJSON.egg-info/dependency_links.txt
 BODtoJSON.egg-info/requires.txt
 BODtoJSON.egg-info/top_level.txt
 Test/Client.py
+dist/BODtoJSON-0.0.1-py3-none-any.whl
+dist/BODtoJSON-0.0.1.tar.gz

@@ -14,7 +14,7 @@ Description: # Mapper
         
         #### Usage:
         ```python
-        from BODtoFlatJSON import convert
+        from BODtoJSON.BODtoJSON import convert
         output_var = convert(input_var)
         ```
         
