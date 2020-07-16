@@ -1,0 +1,3 @@
+six
+flatten_json
+xmltodict
