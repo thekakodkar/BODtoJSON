@@ -18,4 +18,4 @@ output_var = convert(input_var)
 ```
 
 # MIT License
-Read License
+Read License.txt
