@@ -22,8 +22,6 @@
 import xmltodict, json
 import xml.etree.ElementTree as ET
 import re
-import six
-
 
 def convert(input_var):
     """
@@ -76,7 +74,7 @@ def flatify(idict, separator="_", root_keys_to_ignore=set()):
     :return: flat dictionary
     """
     assert isinstance(idict, dict), "flattify requires a dictionary input"
-    assert isinstance(separator, six.string_types), "separator must be string"
+    assert isinstance(separator, str), "separator must be string"
 
     flat_dict = dict()
 
