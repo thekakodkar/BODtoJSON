@@ -18,4 +18,4 @@ output_var = convert(input_var)
 ```
 
 # MIT License
-Read License.txt
+Read [License.txt](https://github.com/thekakodkar/Mapper/blob/master/LICENSE)
