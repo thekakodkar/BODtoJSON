@@ -9,13 +9,22 @@ The library will remove the Verb node from DataArea and keeps only the Noun node
 ##### Getting it
 To download BODtoJSON, either fork this github repo or simply use Pypi via pip.
 ```python
-$ pip install BODtoJSON==0.0.6
+$ pip install BODtoJSON==0.0.5
 ```
 ##### Using it:
 ```python
 from BODtoJSON.BODtoJSON import convert
-output_var = convert(bodxml,noun)
+output_var = convert(bodxml)
 ```
+
+##Latest Release
+```python
+BODtoJSON version 0.0.6
+```
+##### Using it:
+```python
+from BODtoJSON.BODtoJSON import convert
+output_var = convert(bodxml, noun)
 
 # MIT License
 Read License.txt
