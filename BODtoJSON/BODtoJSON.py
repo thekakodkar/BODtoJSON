@@ -22,30 +22,32 @@
 import xmltodict, json
 import xml.etree.ElementTree as ET
 import re
+pnode = 'DataArea'
 
-def convert(input_var):
+
+def convert(bod, noun):
     """
     converts the input BOX XML to Flat JASON
-    :param input_var:
+    :param bod:
     :return: Flat JSON
     """
     # Remove Namespaces from XML
-    input = re.sub(' xmlns="[^"]+"', '', input_var, count=1)
+    input = re.sub(' xmlns="[^"]+"', '', bod, count=1)
 
     # Create an Element Tree
     root = ET.fromstring(input)
 
     # Extract the Data Area
     # Remove unnecessary Nodes
-    for parentnode in root.findall('DataArea'):
-        for node in parentnode.findall('Sync'):
+    for parentnode in root.findall(pnode):
+        for node in parentnode.findall(noun):
             parentnode.remove(node)
         root = ET.tostring(parentnode).decode('utf-8')
 
-    output_var = xmltodict.parse(root)
-    output_var = flatify(output_var)
-    output_var = json.dumps(output_var)
-    return (output_var)
+    jsonout = xmltodict.parse(root)
+    jsonout = flatify(jsonout)
+    jsonout = json.dumps(jsonout)
+    return (jsonout)
 
 
 def _genkey(prev_key, separator, new_key):
