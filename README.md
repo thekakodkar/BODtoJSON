@@ -19,12 +19,12 @@ output_var = convert(bodxml)
 
 ##Latest Release
 ```python
-BODtoJSON version 0.0.6
+$ pip install BODtoJSON==0.0.6
 ```
 ##### Using it:
 ```python
 from BODtoJSON.BODtoJSON import convert
-output_var = convert(bodxml, noun)
+output_var = convert(bodxml, verb)
 
 # MIT License
 Read License.txt

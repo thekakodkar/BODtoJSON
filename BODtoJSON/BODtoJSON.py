@@ -25,7 +25,7 @@ import re
 pnode = 'DataArea'
 
 
-def convert(bod, noun):
+def convert(bod, verb):
     """
     converts the input BOX XML to Flat JASON
     :param bod:
@@ -40,7 +40,7 @@ def convert(bod, noun):
     # Extract the Data Area
     # Remove unnecessary Nodes
     for parentnode in root.findall(pnode):
-        for node in parentnode.findall(noun):
+        for node in parentnode.findall(verb):
             parentnode.remove(node)
         root = ET.tostring(parentnode).decode('utf-8')
 
