@@ -19,7 +19,7 @@ output_var = convert(bodxml)
 
 ##Latest Release
 ```python
-$ pip install BODtoJSON==0.0.6
+$ pip install BODtoJSON==0.0.7
 ```
 ##### Using it:
 ```python
