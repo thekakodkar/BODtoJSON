@@ -1,0 +1,24 @@
+# --- Python Environment ---
+venv/
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Build & Distribution ---
+dist/
+build/
+*.egg-info/
+nosetests.xml
+.coverage
+htmlcov/
+
+# --- IDE & OS Junk ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Project Specific Audit Logs ---
+inspection_result.json
+output_preview.json
