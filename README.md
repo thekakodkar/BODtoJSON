@@ -12,7 +12,8 @@ The transition from v0.0.7 to v1.0.0 is more than a version bump; it is a comple
 
 * **`src/` Layout Adoption:** Migrated from a flat directory to the professional `src/` layout. 
 * **Strategic Verb Stripping:** Unlike v0.0.7, which often included administrative noise, v1.0.0 intelligently isolates the **Noun** (e.g., `PurchaseOrder`) and removes the **Verb** (e.g., `Sync`). This creates a cleaner dataset for LLM ingestion.
-* **Defensive XML Engine:** * **Namespace Neutralization:** v1.0.0 uses dynamic regex to strip primary namespaces automatically.
+* **Defensive XML Engine:**
+    * **Namespace Neutralization:** v1.0.0 uses dynamic regex to strip primary namespaces automatically.
     * **BOM Handling:** Added support for UTF-8 Byte Order Marks to prevent "Invalid Token" errors common in ERP exports.
 * **Consolidated API:** The interface has been simplified. You no longer need to navigate deep submodules; simply use `from BODtoJSON import convert`.
 
