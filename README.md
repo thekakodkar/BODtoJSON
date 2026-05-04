@@ -1,7 +1,7 @@
 # BODtoJSON v1.0.0
 
 **BODtoJSON** is an enterprise-grade Python library designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON structures. 
-
+<img width="2752" height="1536" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" />
 v1.0.0 represents a significant leap from the 0.0.x series, moving from a utility script to a stable, commercialized data asset.
 
 ---
