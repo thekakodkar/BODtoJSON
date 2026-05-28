@@ -1,10 +1,10 @@
 """
-BODtoJSON: A high-performance OAGIS BOD to Flattened JSON converter.
+BODtoJSON: A high-performance OAGIS BOD to Flattened JSON/NDJSON converter.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
-# Expose main functionality at the top level
-from .mapper import convert, BODConverter
+# Expose both legacy and modern functionality at the top level
+from .mapper import to_json, to_ndjson, convert, BODConverter
 
-__all__ = ["convert", "BODConverter"]
+__all__ = ["to_json", "to_ndjson", "convert", "BODConverter"]

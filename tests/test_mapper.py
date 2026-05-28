@@ -1,28 +1,57 @@
-import unittest
 import json
-import sys
-import os
+import pytest
+from BODtoJSON import to_json, to_ndjson, convert
 
-# Align pathing for local testing
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-from BODtoJSON import convert
-from config import Config
+@pytest.mark.parametrize(
+    "file_name, expected_id",
+    [
+        ("sync_PO_PSU000049.xml", "PSU000049"),
+        ("sync_PO_PSU000050.xml", "PSU000050"),
+    ]
+)
+def test_to_json_flattening(xml_loader, file_name, expected_id):
+    """Verifies standard structured JSON formatting maps correctly."""
+    xml = xml_loader.load(file_name)
 
-class TestBODtoJSON(unittest.TestCase):
-    def test_sync_purchase_order(self):
-        result_json = convert(Config.INPUT_VAR, "Sync")
-        data = json.loads(result_json)
+    result_json = to_json(xml, "Sync")
+    data = json.loads(result_json)
+
+    key = "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_#text"
+    assert data.get(key) == expected_id
+
+
+@pytest.mark.parametrize(
+    "file_name, expected_id",
+    [
+        ("sync_PO_PSU000049.xml", "PSU000049"),
+    ]
+)
+def test_to_ndjson_linearization(xml_loader, file_name, expected_id):
+    """Verifies strict compression and single-line execution constraints for NDJSON."""
+    xml = xml_loader.load(file_name)
+
+    result_ndjson = to_ndjson(xml, "Sync")
+    
+    # Operational Checks: No multi-line breaks allowed inside a single record
+    assert result_ndjson.count("\n") == 1
+    assert " " not in result_ndjson.split(":")[0]  # Verify dense spaces mapping
+
+    data = json.loads(result_ndjson.strip())
+    key = "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_#text"
+    assert data.get(key) == expected_id
+
+
+def test_legacy_convert_deprecation_warning(xml_loader):
+    """
+    Regression Testing: Assures that calling the old 'convert' function
+    still works but fires a deprecation alert to keep developers modern.
+    """
+    xml = xml_loader.load("sync_PO_PSU000049.xml")
+
+    # This context manager passes only if a DeprecationWarning is successfully caught
+    with pytest.deprecated_call():
+        result = convert(xml, "Sync")
         
-        # ALIGNED KEY: Engine includes the Noun name (PurchaseOrder)
-        expected_key = "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_#text"
-        
-        # Verification
-        self.assertEqual(
-            data.get(expected_key), 
-            "PSU000049", 
-            f"Key mismatch. Available keys: {list(data.keys())}"
-        )
-
-if __name__ == "__main__":
-    unittest.main()
+    data = json.loads(result)
+    assert "PurchaseOrder_PurchaseOrderHeader_DisplayID" in data

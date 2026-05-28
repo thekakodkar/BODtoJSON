@@ -12,35 +12,46 @@ sys.path.insert(0, os.path.join(root_dir, 'tests'))
 
 # 3. Import directly from the folders we just added
 try:
-    from BODtoJSON import convert
-    from config import Config  # Changed from 'from tests.config'
+    from BODtoJSON import to_json, to_ndjson, convert
+    from config import Config  
 except ImportError as e:
     print(f"CRITICAL: Resource mapping failed. {e}")
     sys.exit(1)
 
 
-def run_business_validation():
+def run_business_validation(mode: str = "ndjson"):
     """
-    Executes a high-fidelity transformation check to ensure 
-    OAGIS-to-JSON flattening meets enterprise standards.
+    Executes a high-fidelity transformation check to validate 
+    OAGIS-to-JSON flattening profiles.
+    
+    Supported modes: 'json', 'ndjson', 'legacy'
     """
     print("="*60)
-    print("BODtoJSON v1.0.0 | Enterprise Payload Validation")
+    print(f"BODtoJSON v1.1.0 | Payload Validation Profile: [{mode.upper()}]")
     print("="*60)
     
-    # Execute the conversion
-    raw_json = convert(Config.INPUT_VAR, "Sync")
+    # 1. Execute transformation based on the target business profile
+    if mode == "ndjson":
+        raw_output = to_ndjson(Config.INPUT_VAR, "Sync")
+    elif mode == "json":
+        raw_output = to_json(Config.INPUT_VAR, "Sync")
+    else:
+        # Validates that your legacy production calls still execute gracefully
+        raw_output = convert(Config.INPUT_VAR, "Sync")
     
     try:
-        # Load string into dictionary for analysis
-        data = json.loads(raw_json)
-        
-        # 1. Verification of flattening
+        # Check for inline engine errors
+        if '"status":"error"' in raw_output.replace(" ", ""):
+            raise ValueError(raw_output)
+
         print(f"STATUS: SUCCESS")
-        print(f"TOTAL FLATTENED KEYS: {len(data)}")
         print("-" * 60)
         
-        # 2. Display specific business-critical keys
+        # Parse the first record line for terminal visualization/metrics
+        first_line = raw_output.split("\n")[0]
+        preview_data = json.loads(first_line)
+        
+        print(f"TOTAL FLATTENED KEYS IN RECORD: {len(preview_data)}")
         print("CRITICAL DATA PREVIEW:")
         sample_keys = [
             "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_#text",
@@ -49,14 +60,22 @@ def run_business_validation():
         ]
         
         for key in sample_keys:
-            value = data.get(key, "NOT FOUND")
+            value = preview_data.get(key, "NOT FOUND")
             print(f"  > {key:50} : {value}")
             
         print("-" * 60)
         
-        # 3. Export to file for manual audit
-        with open("output_preview.json", "w") as f:
-            f.write(json.dumps(data, indent=4))
+        # 2. Audit Log Generation
+        # Write the raw output directly. to_ndjson is already flat and newline terminated.
+        if mode == "ndjson":
+            with open("output_preview.json", "w", encoding="utf-8") as f:
+                f.write(raw_output)
+        else:
+            # If standard JSON, we can format it with an indent for human readability
+            formatted_json = json.dumps(preview_data, indent=4)
+            with open("output_preview.json", "w", encoding="utf-8") as f:
+                f.write(formatted_json)
+                
         print("AUDIT LOG: 'output_preview.json' has been generated for review.")
         
     except Exception as e:
@@ -64,4 +83,5 @@ def run_business_validation():
         print(f"ERROR DETAIL: {str(e)}")
 
 if __name__ == "__main__":
-    run_business_validation()
+    # Options: "ndjson" (strict single-line), "json" (standard), "legacy" (backward compatibility check)
+    run_business_validation(mode="ndjson")
