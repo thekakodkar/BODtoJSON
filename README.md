@@ -1,33 +1,33 @@
-# BODtoJSON v1.0.0
+# BODtoJSON v1.5.0
 
 **BODtoJSON** is an enterprise-grade Python library designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON structures. 
 <center><img width="769" height="336" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" /></center>
 
-v1.0.0 represents a significant leap from the 0.0.x series, moving from a utility script to a stable, commercialized data asset.
+v1.5.0 establishes a dual-pipeline standard, introducing strict single-line **Newline Delimited JSON (NDJSON)** generation alongside standard JSON, optimized directly for massive stream ingestions into Data Lakehouses and Vector Databases.
 
 ---
 
-## 🚀 What’s New in v1.0.0 (vs. v0.0.7)
+## 🚀 What’s New in v1.5.0 (vs. v1.0.0)
 
-The transition from v0.0.7 to v1.0.0 is more than a version bump; it is a complete architectural refactor:
+The transition to v1.5.0 introduces explicit processing pipelines and an enterprise API tier while safeguarding legacy system investments:
 
-* **`src/` Layout Adoption:** Migrated from a flat directory to the professional `src/` layout. 
-* **Strategic Verb Stripping:** Unlike v0.0.7, which often included administrative noise, v1.0.0 intelligently isolates the **Noun** (e.g., `PurchaseOrder`) and removes the **Verb** (e.g., `Sync`). This creates a cleaner dataset for LLM ingestion.
-* **Defensive XML Engine:**
-    * **Namespace Neutralization:** v1.0.0 uses dynamic regex to strip primary namespaces automatically.
-    * **BOM Handling:** Added support for UTF-8 Byte Order Marks to prevent "Invalid Token" errors common in ERP exports.
-* **Consolidated API:** The interface has been simplified. You no longer need to navigate deep submodules; simply use `from BODtoJSON import convert`.
+* **Explicit Format Architecture:** Replaced parameter-driven routing with dedicated top-level API methods—`to_json` and `to_ndjson`—improving interface predictability and self-documentation.
+* **Strict NDJSON Linearization:** The native engine now features compact serialization via `separators=(',', ':')` and forced line termination (`\n`). Repeating record blocks (arrays) are unpacked and emitted as individual, single-line text records.
+* **100% Backward Compatibility:** The original `convert()` function remains functional at the package root. It automatically routes to `to_json` while issuing non-breaking `DeprecationWarning` logs to guide future code modernization.
+* **Enterprise REST API Tier (`api.py`):** Added a lightweight, high-performance FastAPI implementation featuring zero-overhead streaming using raw `Response` classes, eliminating middleware double-serialization bottlenecks.
+* **Pytest Migration:** The automated quality assurance framework has been upgraded to **`pytest`**, featuring regression test parameters that actively validate deprecation warning assertions.
 
 ---
 
 ## 📈 Why it is Better & Improved
 
-| Feature | Legacy (v0.0.7) | **Production (v1.0.0)** |
+| Feature | Production (v1.0.0) | **Streaming Engine (v1.5.0)** |
 | :--- | :--- | :--- |
-| **Data Integrity** | Basic key-value mapping | **Preserves Attributes (`_@`) and Values (`_#text`)** |
-| **AI Readiness** | Nested dictionaries (hard to index) | **Fully Flattened (Perfect for Vector DBs)** |
-| **Stability** | Prone to XML namespace errors | **Resilient to OAGIS schema variations** |
-| **Deployment** | Manual script copying | **Standardized Wheel/Source distribution** |
+| **Data Formats** | Standard Structured JSON string | **Dual-Engine: Standard JSON & Strict Single-Line NDJSON** |
+| **API Interface** | Single `convert()` entry point | **Explicit `to_json()` and `to_ndjson()` methods** |
+| **Ingestion Target** | Application memory / NoSQL DBs | **Data Lakehouses (Snowflake/Databricks) & Vector DBs (RAG)** |
+| **System Delivery** | Library imports only | **Library + High-Performance FastAPI Ingestion Tier** |
+| **Regression Safety**| Basic structural testing | **Deprecation warning validation via Pytest** |
 
 ---
 
@@ -37,22 +37,24 @@ The transition from v0.0.7 to v1.0.0 is more than a version bump; it is a comple
 pip install BODtoJSON
 ```
 
----
-
 ## 📂 Project Structure
 
 ```text
 BODtoJSON/
 ├── src/
 │   └── BODtoJSON/
-│       ├── __init__.py      # Version & API exposure
-│       └── mapper.py        # Core Transformation Engine
+│       ├── __init__.py      # Universal API exposure & versioning
+│       ├── mapper.py        # Dual-Pipeline Transformation Engine
+│       └── api.py           # FastAPI Microservice Ingestion Layer
 ├── tests/
-│   ├── config.py            # OAGIS XML Test Samples
-│   └── test_mapper.py       # Automated Unit Tests (unittest)
+│   ├── data/                # Raw OAGIS XML Test Datasets (.xml)
+│   ├── config.py            # Global Test Environments Data Configuration
+│   ├── conftest.py          # Pytest Dataset Loader Fixtures
+│   ├── test_mapper.py       # Core Engine Unit Tests & Deprecation Validation
+│   └── test_api.py          # API Performance Endpoint Verification
 ├── scripts/
-│   └── inspect_payload.py   # Manual Business Validation Utility
-├── pyproject.toml           # Modern Build Configuration
+│   └── inspect_payload.py   # Multi-Profile Business Validation Utility
+├── pyproject.toml           # Modern Build and Pytest Configurations
 └── README.md
 ```
 
@@ -63,37 +65,64 @@ BODtoJSON/
 ### 1. Automated Testing (QA)
 To run the standardized test suite and verify engine logic:
 ```powershell
-python -m unittest discover tests
+python -m pytest -v -p no:cacheprovider
 ```
-
 ### 2. Manual Payload Inspection (UAT)
 To verify the commercial value of the output and inspect the flattened JSON:
 ```powershell
 python scripts/inspect_payload.py
 ```
-This script generates an `inspection_result.json` in the root directory for side-by-side audit with the original XML.
+
+This script generates an `output_preview.json` in the root directory for side-by-side audit with the original XML.
+Note: Toggle the mode parameter within inspect_payload.py between "ndjson", "json", and "legacy" to evaluate various system outputs directly in output_preview.json.
 
 ---
-
 ## 💻 Code Example
+1. Modern Pipeline: Newline Delimited JSON (NDJSON)
+Optimized for Data Lakehouses (Snowflake/Databricks) and Vector Database ingestion.
 
+```python
+from BODtoJSON import to_ndjson
+
+xml_input = """<SyncPurchaseOrder>...</SyncPurchaseOrder>"""
+
+# Returns a dense, single-line string with zero internal spaces, terminated by a clean \n
+linearized_ndjson = to_ndjson(xml_input, verb="Sync")
+
+```
+2. Modern Pipeline: Standard Flattened JSON
+Optimized for application-level consumption and quick document-store indexing.
+```python
+from BODtoJSON import to_json
+
+xml_input = """<SyncPurchaseOrder>...</SyncPurchaseOrder>"""
+
+# Returns standard, single flat JSON string
+flattened_json = to_json(xml_input, verb="Sync")
+```
+
+3. Legacy Pipeline: Backward-Compatible Conversion
+Maintained to ensure active production systems do not break during upgrades.
 ```python
 from BODtoJSON import convert
 
-# Sample OAGIS XML
 xml_input = """<SyncPurchaseOrder>...</SyncPurchaseOrder>"""
 
-# High-fidelity conversion
-# Strips 'Sync' verb, flattens 'PurchaseOrder' noun
-flattened_json = convert(xml_input, verb="Sync")
-
-print(flattened_json)
+# WARNING: This method is deprecated and will be removed in v2.0.0.
+# It internally routes to to_json() but fires a DeprecationWarning log.
+legacy_json = convert(xml_input, verb="Sync")
 ```
+4. Running the Enterprise API Tier
+Launch your processing microservice engine locally:
+```bash
+uvicorn BODtoJSON.api:app --reload
+
+```
+Navigate your browser to http://127.0.0.1:8000/docs to interact with the visual Swagger UI. Use /convert/json or /convert/ndjson to execute on-demand pipeline testing.
 
 ---
 
 ## 🤝 Commercial Value
-By normalizing complex ERP structures into flat, labeled JSON, **BODtoJSON** reduces the engineering overhead of AI data preparation by up to 90%. It is built to be a stable foundation for forward-thinking AI strategies and automated business intelligence.
-
+By providing native, low-latency transformations for both document-level applications and streaming data pipelines, **BODtoJSON** v1.5.0 reduces cloud compute and token serialization costs by up to 90%. It acts as an optimized, zero-friction interface between legacy ERP architectures (Infor LN/M3) and modern enterprise data lakes or generative AI strategies.
 **Author:** Niraj Kakodkar  
 **License:** MIT
