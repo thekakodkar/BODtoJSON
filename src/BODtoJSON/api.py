@@ -4,8 +4,8 @@ from BODtoJSON import to_json, to_ndjson, convert
 
 app = FastAPI(
     title="BODtoJSON API",
-    version="1.1.0",
-    description="Enterprise OAGIS Integration Data Fabric Engine"
+    version="2.0.0",
+    description="Zero-Dependency Enterprise OAGIS Integration Data Fabric Engine"
 )
 
 # -------------------------------------------------------------------
@@ -24,7 +24,7 @@ async def root():
     return {
         "service": "BODtoJSON",
         "status": "running",
-        "version": "1.1.0"
+        "version": "2.0.0"
     }
 
 

@@ -1,21 +1,20 @@
-# BODtoJSON v1.5.0
+# BODtoJSON v2.0.0
 
-**BODtoJSON** is an enterprise-grade Python library designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON structures. 
+**BODtoJSON** is a zero-dependency, enterprise-grade Python data liquidity engine designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON and NDJSON structures.
+
 <center><img width="769" height="336" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" /></center>
 
-v1.5.0 establishes a dual-pipeline standard, introducing strict single-line **Newline Delimited JSON (NDJSON)** generation alongside standard JSON, optimized directly for massive stream ingestions into Data Lakehouses and Vector Databases.
+v2.0.0 marks a major architectural milestone: eliminating all external core dependencies, introducing native single-pass ElementTree traversal, and establishing a dual-pipeline streaming standard for Data Lakehouses and Vector Databases.
 
 ---
 
-## 🚀 What’s New in v1.5.0 (vs. v1.0.0)
+## 🚀 What’s New in v2.0.0 (vs. v1.0.0)
 
-The transition to v1.5.0 introduces explicit processing pipelines and an enterprise API tier while safeguarding legacy system investments:
-
-* **Explicit Format Architecture:** Replaced parameter-driven routing with dedicated top-level API methods—`to_json` and `to_ndjson`—improving interface predictability and self-documentation.
-* **Strict NDJSON Linearization:** The native engine now features compact serialization via `separators=(',', ':')` and forced line termination (`\n`). Repeating record blocks (arrays) are unpacked and emitted as individual, single-line text records.
-* **100% Backward Compatibility:** The original `convert()` function remains functional at the package root. It automatically routes to `to_json` while issuing non-breaking `DeprecationWarning` logs to guide future code modernization.
-* **Enterprise REST API Tier (`api.py`):** Added a lightweight, high-performance FastAPI implementation featuring zero-overhead streaming using raw `Response` classes, eliminating middleware double-serialization bottlenecks.
-* **Pytest Migration:** The automated quality assurance framework has been upgraded to **`pytest`**, featuring regression test parameters that actively validate deprecation warning assertions.
+* **Zero-Dependency Core Engine:** Removed `xmltodict` in favor of a single-pass recursive traversal built purely on Python’s native `xml.etree.ElementTree`. This eliminates external supply-chain risks, shrinks deployment footprints for air-gapped or serverless environments, and halves intermediate memory allocations.
+* **Explicit Dual-Pipeline Architecture:** Replaced parameter-driven routing with dedicated top-level API methods—`to_json` and `to_ndjson`—improving interface predictability and self-documentation.
+* **Strict NDJSON Linearization:** Features compact serialization via `separators=(',', ':')` and forced line termination (`\n`). Multi-noun batch payloads inside `DataArea` are automatically unpacked and emitted as individual, single-line text records.
+* **Enterprise REST API Tier (`api.py`):** Added an optional, high-performance FastAPI microservice layer featuring zero-overhead streaming using raw `Response` classes, eliminating middleware double-serialization bottlenecks.
+* **Pytest Suite:** Standardized automated quality assurance on **`pytest`**, including regression assertions for deprecation warnings.
 
 ---
 

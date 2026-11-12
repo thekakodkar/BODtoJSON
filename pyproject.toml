@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "BODtoJSON"
-version = "1.5.0"
+version = "2.0.0"
 authors = [
   { name="Niraj Kakodkar" },
 ]
-description = "Production-grade Infor OAGIS BOD to Flattened JSON converter."
+description = "Zero-dependency OAGIS BOD to Flattened JSON and NDJSON converter"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
