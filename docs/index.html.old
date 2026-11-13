@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BODtoJSON | Enterprise Message Transformation Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif; }
+    </style>
+</head>
+<body class="bg-[#000000] text-[#FFFFFF] antialiased selection:bg-[#FFFFFF] selection:text-[#000000]">
+
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-black/70 border-b border-neutral-900 px-6 py-5">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 150" class="h-11 w-auto">
+                    <path d="M 10,10 L 130,10 L 130,140 L 10,140 Z" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round"/>
+                    <path d="M 40,45 L 100,45 M 40,75 L 100,75 M 40,105 L 80,105" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+                    <circle cx="100" cy="105" r="10" fill="#FFFFFF"/>
+                </svg>
+                <span class="text-2xl font-bold tracking-tight">BOD<span class="font-light text-neutral-400">toJSON</span></span>
+            </div>
+            <div class="flex items-center space-x-6 text-sm font-medium tracking-tight">
+                <a href="#features" class="text-neutral-400 hover:text-white transition-colors hidden sm:inline-block">Architecture</a>
+                <a href="#topology" class="text-neutral-400 hover:text-white transition-colors hidden sm:inline-block">Topology</a>
+                <a href="#installation" class="text-neutral-400 hover:text-white transition-colors hidden sm:inline-block">Get Started</a>
+                <a href="#distribution" class="text-neutral-400 hover:text-white transition-colors hidden sm:inline-block">Registry</a>
+                <a href="#author" class="text-neutral-400 hover:text-white transition-colors">Provenance</a>
+                <a href="https://github.com/thekakodkar" target="_blank" class="bg-white text-black px-4 py-1.5 rounded-full hover:bg-neutral-200 transition-all font-semibold">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="relative overflow-hidden pt-32 pb-24 border-b border-neutral-900">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+            <p class="text-sm font-semibold uppercase tracking-[0.4em] text-neutral-500 mb-4">Data Supply Chain Modernization</p>
+            <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-none max-w-4xl mx-auto">
+                Legacy Messaging. Cloud Native Speed.
+            </h1>
+            <p class="text-xl md:text-2xl text-neutral-400 font-light max-w-3xl mx-auto mb-12 leading-relaxed">
+                BODtoJSON is a high-performance serialization engine built to normalize complex XML-based Business Object Documents (BOD) into clean, indexable, memory-efficient JSON structures for downstream AI analytics and cloud systems.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="#installation" class="w-full sm:w-auto bg-white text-black text-base font-semibold px-8 py-3 rounded-full hover:bg-neutral-200 transition-all text-center">
+                    Get Started
+                </a>
+                <a href="https://pypi.org/project/BODtoJSON/" target="_blank" class="w-full sm:w-auto border border-neutral-700 hover:border-white text-white text-base font-medium px-8 py-3 rounded-full transition-all text-center">
+                    PyPI Package
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="py-24 max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">The Architectural Advantages</h2>
+            <p class="text-neutral-400 max-w-xl mx-auto font-light">Unlocking enterprise transactional value locked within verbose legacy messaging boundaries.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="p-8 rounded-2xl bg-[#0B0C0E] border border-neutral-900 hover:border-neutral-800 transition-all">
+                <div class="text-xl font-bold tracking-tight mb-3 text-white">Schema Normalization</div>
+                <p class="text-neutral-400 font-light leading-relaxed">
+                    Flattens nested OAGIS standards and complex XML payloads seamlessly. Translates dense transaction schemas into predictable object models with strict attribute retention.
+                </p>
+            </div>
+            <div class="p-8 rounded-2xl bg-[#0B0C0E] border border-neutral-900 hover:border-neutral-800 transition-all">
+                <div class="text-xl font-bold tracking-tight mb-3 text-white">Streamlined Ingestion</div>
+                <p class="text-neutral-400 font-light leading-relaxed">
+                    Optimized memory management constraints built for high-throughput messaging backbones. Ready to feed distributed logging pipelines, document stores, and lakehouses.
+                </p>
+            </div>
+            <div class="p-8 rounded-2xl bg-[#0B0C0E] border border-neutral-900 hover:border-neutral-800 transition-all">
+                <div class="text-xl font-bold tracking-tight mb-3 text-white">LLM Compatibility</div>
+                <p class="text-neutral-400 font-light leading-relaxed">
+                    Verbose XML structures squander massive token context length. Converting to sparse JSON structures reduces prompt token load drastically for retrieval-augmented generation architectures.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="topology" class="py-24 border-t border-neutral-900 bg-[#020203]">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <p class="text-xs font-semibold uppercase tracking-[0.4em] text-neutral-500 mb-3">Pipeline Overview</p>
+                <h2 class="text-3xl font-bold tracking-tight">The Transformation Topology</h2>
+            </div>
+
+            <div class="border border-neutral-800 rounded-3xl p-8 md:p-12 bg-black shadow-2xl max-w-4xl mx-auto">
+                <div class="flex flex-col items-center space-y-8">
+                    
+                    <div class="flex flex-col items-center w-full max-w-sm">
+                        <div class="bg-neutral-900 border border-neutral-800 text-neutral-400 font-mono text-xs px-4 py-3 rounded-xl tracking-wide w-full text-center">
+                            &lt;BusinessObjectDocument&gt; (Legacy XML Payload)
+                        </div>
+                        <div class="h-8 w-px bg-neutral-800"></div>
+                    </div>
+
+                    <div class="w-full border border-neutral-700 bg-[#060709] rounded-2xl p-6 md:p-8 relative">
+                        <div class="absolute -top-3 left-6 bg-white text-black font-mono text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-md">
+                            bodtojson parsing runtime
+                        </div>
+                        
+                        <div class="flex flex-col items-center space-y-6">
+                            <div class="w-full bg-black border border-neutral-800 p-4 rounded-xl flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 rounded-full bg-white"></div>
+                                    <span class="text-sm font-semibold tracking-tight">01. DOM Element Decomposition</span>
+                                </div>
+                                <span class="text-xs font-mono text-neutral-500">Node Stripping</span>
+                            </div>
+
+                            <div class="h-4 w-px bg-neutral-800"></div>
+
+                            <div class="w-full bg-black border border-neutral-800 p-4 rounded-xl flex items-center justify-between relative overflow-hidden">
+                                <div class="absolute inset-y-0 left-0 w-1 bg-neutral-700"></div>
+                                <div class="flex items-center space-x-3 pl-2">
+                                    <div class="w-2 h-2 rounded-full bg-neutral-500 animate-pulse"></div>
+                                    <span class="text-sm font-semibold tracking-tight text-neutral-300">02. Schema Mapping & Type Alignment</span>
+                                </div>
+                                <span class="text-xs font-mono text-neutral-500">Dynamic Key Reduction</span>
+                            </div>
+
+                            <div class="h-4 w-px bg-neutral-800"></div>
+
+                            <div class="w-full bg-black border border-neutral-800 p-4 rounded-xl flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 rounded-full bg-white"></div>
+                                    <span class="text-sm font-semibold tracking-tight">03. Minified Object Generation</span>
+                                </div>
+                                <span class="text-xs font-mono text-neutral-500">BOD Payload Output</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center w-full max-w-sm">
+                        <div class="h-8 w-px bg-neutral-800"></div>
+                        <div class="bg-white text-black font-semibold text-xs px-5 py-3 rounded-full tracking-wide w-full text-center shadow-lg font-mono">
+                            { "status": "success", "data": JSON }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="installation" class="py-24 bg-[#050607] border-t border-b border-neutral-900">
+        <div class="max-w-5xl mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-center mb-16">Implementation Matrix</h2>
+            
+            <div class="bg-black border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl">
+                <div class="flex items-center space-x-2 px-4 py-3 border-b border-neutral-900 bg-neutral-950/50">
+                    <div class="w-3 h-3 rounded-full bg-neutral-800"></div>
+                    <div class="w-3 h-3 rounded-full bg-neutral-800"></div>
+                    <div class="w-3 h-3 rounded-full bg-neutral-800"></div>
+                    <span class="text-xs text-neutral-500 font-mono pl-4">pip install bodtojson</span>
+                </div>
+                <div class="p-6 font-mono text-sm leading-relaxed overflow-x-auto text-neutral-300">
+                    <p class="text-neutral-500"># Install the stable processing library</p>
+                    <p class="mb-4"><span class="text-neutral-400">$</span> pip install bodtojson</p>
+                    
+                    <p class="text-neutral-500"># Initialize the high-throughput parser</p>
+                    <p><span class="text-purple-400">from</span> bodtojson <span class="text-purple-400">import</span> BODParser</p>
+                    <br>
+                    <p><span class="text-neutral-500"># Load complex legacy XML message string</span></p>
+                    <p>xml_data = <span class="text-green-400">"&lt;BusinessObjectDocument&gt;...&lt;/BusinessObjectDocument&gt;"</span></p>
+                    <br>
+                    <p><span class="text-neutral-500"># Parse directly to compliant structural JSON</span></p>
+                    <p>json_output = BODParser.convert(xml_data, minify_keys=<span class="text-amber-400">True</span>)</p>
+                    <p><span class="text-purple-400">print</span>(json_output)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="distribution" class="py-20 bg-[#000000] border-b border-neutral-900">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight mb-6">Package Distribution</h2>
+                    <p class="text-neutral-400 font-light leading-relaxed mb-6">
+                        Distributed through the official Python Package Index (PyPI). Architected with strict compliance guidelines ensuring clean separation of logic without data side-effects or outbound analytics tracking—essential for secure ERP/SCM integration matrices.
+                    </p>
+                    <div class="flex space-x-8 border-t border-neutral-900 pt-6">
+                        <div>
+                            <div class="text-2xl font-bold tracking-tight text-white">v1.0.0</div>
+                            <div class="text-xs uppercase tracking-widest text-neutral-500 mt-1">Stable Release</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold tracking-tight text-white">100%</div>
+                            <div class="text-xs uppercase tracking-widest text-neutral-500 mt-1">Sovereign Parsing</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-black border border-neutral-800 rounded-2xl p-6 font-mono text-xs space-y-4 text-neutral-400">
+                    <div class="flex justify-between items-center pb-2 border-b border-neutral-900">
+                        <span class="text-neutral-500">Registry Path</span>
+                        <a href="https://pypi.org/project/BODtoJSON/" target="_blank" class="text-neutral-300 hover:underline">pypi.org/project/bodtojson</a>
+                    </div>
+                    <div class="flex justify-between items-center pb-2 border-b border-neutral-900">
+                        <span class="text-neutral-500">Licensing</span>
+                        <span class="text-neutral-200">MIT Open Source</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2 border-b border-neutral-900">
+                        <span class="text-neutral-500">Target Frameworks</span>
+                        <span class="text-neutral-200">FastAPI / AWS Lambda / Airflow</span>
+                    </div>
+                    <div class="bg-neutral-950 p-4 rounded-xl border border-neutral-900 text-neutral-300 text-sm">
+                        <span class="text-neutral-600">$</span> pip install bodtojson
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="author" class="py-24 bg-[#020203]">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            
+            <div class="mb-8 flex justify-center">
+                <div class="relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-neutral-800 to-white rounded-full opacity-30 blur group-hover:opacity-50 transition duration-300"></div>
+                    <img class="relative w-24 h-24 rounded-full object-cover border-2 border-neutral-800" 
+                         src="https://github.com/thekakodkar.png" 
+                         alt="Niraj Kakodkar"
+                         onerror="this.src='https://ui-avatars.com/api/?name=Niraj+Kakodkar&background=0D0E10&color=fff'">
+                </div>
+            </div>
+
+            <p class="text-xs font-semibold uppercase tracking-[0.4em] text-neutral-500 mb-4">Architectural Provenance</p>
+            <h2 class="text-3xl font-bold tracking-tight mb-6">Behind the Framework</h2>
+            <p class="text-lg text-neutral-300 font-light max-w-2xl mx-auto leading-relaxed mb-6">
+                BODtoJSON was conceptualized and engineered by <strong>Niraj Kakodkar</strong>, an AI strategist and technical director with over two decades of enterprise digital transformation history.
+            </p>
+            <p class="text-base text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed mb-12">
+                This project focuses directly on supply chain data liberation—allowing complex enterprise transaction pipelines to instantly feed contemporary AI applications, analytics structures, and modern cloud architectures.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-xl mx-auto">
+                <a href="https://www.linkedin.com/in/thekakodkar" target="_blank" class="w-full sm:w-auto text-xs font-semibold uppercase tracking-wider bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white px-6 py-3 rounded-full transition-all">
+                    Connect on LinkedIn
+                </a>
+                <a href="https://github.com/thekakodkar" target="_blank" class="w-full sm:w-auto text-xs font-semibold uppercase tracking-wider bg-white hover:bg-neutral-200 text-black px-6 py-3 rounded-full transition-all">
+                    Follow on GitHub
+                </a>
+                <a href="https://www.youtube.com/@DecodeAIWithNiraj" target="_blank" class="w-full sm:w-auto text-xs font-semibold uppercase tracking-wider bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white px-6 py-3 rounded-full transition-all">
+                    Decode AI on YouTube
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-16 max-w-7xl mx-auto px-6 text-center text-neutral-500 text-sm border-t border-neutral-950">
+        <p class="mb-2 font-medium tracking-wide">&copy; 2026 BODtoJSON architecture. All rights reserved.</p>
+        <p class="font-light text-neutral-600">Engineered for low-latency serialization loops and decoupled enterprise application data streams.</p>
+    </footer>
+
+</body>
+</html>
