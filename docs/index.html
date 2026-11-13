@@ -1,260 +1,1319 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BODtoJSON | Enterprise Message Transformation Engine</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>BODtoJSON v2.1.1 | Enterprise Documentation & Use Case Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: system-ui, -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif; }
+        :root {
+            --bg-body: #f4f7fb;
+            --bg-surface: #ffffff;
+            --bg-sidebar: #0b1120;
+            --bg-code: #0f172a;
+            --text-main: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --text-sidebar: #cbd5e1;
+            --accent: #2563eb;
+            --accent-dark: #1d4ed8;
+            --accent-soft: #eff6ff;
+            --accent-border: #bfdbfe;
+            --border: #e2e8f0;
+            --success: #059669;
+            --warning: #d97706;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+            --sidebar-width: 290px;
+            --sidebar-collapsed: 76px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.65;
+            display: flex;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0b1120 0%, #0f172a 100%);
+            color: var(--text-sidebar);
+            padding: 1.5rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        body.sidebar-collapsed aside {
+            width: var(--sidebar-collapsed);
+            padding: 1.5rem 0.65rem;
+        }
+
+        .brand-box {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.15rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .brand-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            min-height: 36px;
+        }
+
+        body.sidebar-collapsed .brand-top {
+            justify-content: center;
+        }
+
+        .brand-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        body.sidebar-collapsed .brand-title-wrap,
+        body.sidebar-collapsed .brand-sub,
+        body.sidebar-collapsed .nav-title,
+        body.sidebar-collapsed .nav-label,
+        body.sidebar-collapsed .ext-label {
+            display: none;
+        }
+
+        .brand {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+        }
+
+        .badge-version {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 0.16rem 0.5rem;
+            border-radius: 999px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+        }
+
+        .brand-sub {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            line-height: 1.4;
+            margin-top: 0.35rem;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+
+        .toggle-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .toggle-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: transform 0.25s ease;
+        }
+
+        body.sidebar-collapsed .toggle-btn svg {
+            transform: rotate(180deg);
+        }
+
+        .nav-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .nav-title {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            padding-left: 0.75rem;
+        }
+
+        aside ul {
+            list-style: none;
+        }
+
+        aside li {
+            margin-bottom: 0.25rem;
+        }
+
+        aside a.nav-link {
+            color: var(--text-sidebar);
+            text-decoration: none;
+            font-size: 0.87rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        body.sidebar-collapsed aside a.nav-link {
+            justify-content: center;
+            padding: 0.6rem 0;
+        }
+
+        aside a.nav-link:hover {
+            background-color: rgba(59, 130, 246, 0.18);
+            color: #ffffff;
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        .sidebar-links {
+            padding-top: 1.1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .ext-link {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 0.84rem;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        body.sidebar-collapsed .ext-link {
+            justify-content: center;
+            padding: 0.55rem 0;
+        }
+
+        .ext-link:hover {
+            background: rgba(37, 99, 235, 0.22);
+            border-color: rgba(59, 130, 246, 0.45);
+            color: #ffffff;
+        }
+
+        .ext-link svg {
+            width: 17px;
+            height: 17px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: var(--sidebar-width);
+            padding: 3rem 4rem;
+            max-width: calc(100% - var(--sidebar-width));
+            width: 100%;
+            transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.sidebar-collapsed main {
+            margin-left: var(--sidebar-collapsed);
+            max-width: calc(100% - var(--sidebar-collapsed));
+        }
+
+        .content-container {
+            max-width: 1060px;
+            margin: 0 auto;
+        }
+
+        header.hero {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2.75rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header.hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #0ea5e9, #10b981);
+        }
+
+        header.hero h1 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+        }
+
+        header.hero p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 760px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .hero-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .hero-btn.primary {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+        }
+
+        .hero-btn.primary:hover {
+            background: var(--accent-dark);
+            color: #ffffff;
+        }
+
+        .hero-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+            margin-top: 1.35rem;
+        }
+
+        .pill {
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid var(--accent-border);
+        }
+
+        section {
+            margin-bottom: 3.25rem;
+            scroll-margin-top: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.85rem;
+            padding-bottom: 0.55rem;
+            border-bottom: 2px solid var(--border);
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-surface);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin: 1.25rem 0;
+            font-size: 0.91rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.84rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tr:hover td {
+            background-color: #fafcff;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        code.inline {
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 0.16rem 0.42rem;
+            border-radius: 5px;
+            font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+            font-size: 0.84em;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Code Cards */
+        .use-case-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.85rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .use-case-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: #cbd5e1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.01em;
+        }
+
+        .tag {
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 0.24rem 0.7rem;
+            border-radius: 999px;
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .tag.green { background: #d1fae5; color: #065f46; }
+        .tag.amber { background: #fef3c7; color: #92400e; }
+        .tag.slate { background: #f1f5f9; color: #334155; }
+
+        .code-wrapper {
+            position: relative;
+            margin-top: 0.9rem;
+        }
+
+        pre {
+            background-color: var(--bg-code);
+            color: #f8fafc;
+            padding: 1.25rem 1.35rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            border: 1px solid #1e293b;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.65rem;
+            right: 0.65rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 6px;
+            padding: 0.28rem 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        /* Interactive Playground */
+        .playground {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.85rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .pg-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+            font-size: 0.82rem;
+            padding: 0.9rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #0f172a;
+            resize: vertical;
+            margin-top: 0.4rem;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 0.65rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button.action {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        button.action:hover {
+            background: var(--accent-dark);
+        }
+
+        button.action.secondary {
+            background: #1e293b;
+        }
+
+        button.action.secondary:hover {
+            background: #0f172a;
+        }
+
+        footer {
+            margin-top: 3.5rem;
+            padding-top: 1.75rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.25rem;
+            align-items: center;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.15s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 960px) {
+            aside {
+                width: var(--sidebar-collapsed);
+                padding: 1.5rem 0.65rem;
+            }
+            .brand-title-wrap, .brand-sub, .nav-title, .nav-label, .ext-label {
+                display: none;
+            }
+            .brand-top { justify-content: center; }
+            aside a.nav-link { justify-content: center; padding: 0.6rem 0; }
+            .ext-link { justify-content: center; padding: 0.55rem 0; }
+            main {
+                margin-left: var(--sidebar-collapsed);
+                max-width: calc(100% - var(--sidebar-collapsed));
+                padding: 1.75rem;
+            }
+            .pg-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
-<body class="bg-[#000000] text-[#FFFFFF] antialiased selection:bg-[#FFFFFF] selection:text-[#000000]">
+<body>
 
-    <nav class="sticky top-0 z-50 backdrop-blur-md bg-black/70 border-b border-neutral-900 px-6 py-5">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 150" class="h-11 w-auto">
-                    <path d="M 10,10 L 130,10 L 130,140 L 10,140 Z" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round"/>
-                    <path d="M 40,45 L 100,45 M 40,75 L 100,75 M 40,105 L 80,105" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
-                    <circle cx="100" cy="105" r="10" fill="#FFFFFF"/>
-                </svg>
-                <span class="text-2xl font-bold tracking-tight">BOD<span class="font-light text-neutral-400">toJSON</span></span>
+<aside id="sidebar">
+    <div>
+        <div class="brand-box">
+            <div class="brand-top">
+                <div class="brand-title-wrap">
+                    <span class="brand">BODtoJSON</span>
+                    <span class="badge-version">v2.1.1</span>
+                </div>
+                <button class="toggle-btn" id="sidebarToggle" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
             </div>
-            <div class="flex items-center space-x-6 text-sm font-medium tracking-tight">
-                <a href="#features" class="text-neutral-400 hover:text-white transition-colors hidden sm:inline-block">Architecture</a>
-                <a href="#topology" class="text-neutral-400 hover:text-white transition-colors hidden sm:inline-block">Topology</a>
-                <a href="#installation" class="text-neutral-400 hover:text-white transition-colors hidden sm:inline-block">Get Started</a>
-                <a href="#distribution" class="text-neutral-400 hover:text-white transition-colors hidden sm:inline-block">Registry</a>
-                <a href="#author" class="text-neutral-400 hover:text-white transition-colors">Provenance</a>
-                <a href="https://github.com/thekakodkar" target="_blank" class="bg-white text-black px-4 py-1.5 rounded-full hover:bg-neutral-200 transition-all font-semibold">GitHub</a>
-            </div>
+            <div class="brand-sub">Zero-Dependency OAGIS Data Liquidity Engine</div>
         </div>
-    </nav>
 
-    <header class="relative overflow-hidden pt-32 pb-24 border-b border-neutral-900">
-        <div class="max-w-5xl mx-auto px-6 text-center">
-            <p class="text-sm font-semibold uppercase tracking-[0.4em] text-neutral-500 mb-4">Data Supply Chain Modernization</p>
-            <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-none max-w-4xl mx-auto">
-                Legacy Messaging. Cloud Native Speed.
-            </h1>
-            <p class="text-xl md:text-2xl text-neutral-400 font-light max-w-3xl mx-auto mb-12 leading-relaxed">
-                BODtoJSON is a high-performance serialization engine built to normalize complex XML-based Business Object Documents (BOD) into clean, indexable, memory-efficient JSON structures for downstream AI analytics and cloud systems.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <a href="#installation" class="w-full sm:w-auto bg-white text-black text-base font-semibold px-8 py-3 rounded-full hover:bg-neutral-200 transition-all text-center">
-                    Get Started
+        <div class="nav-group">
+            <div class="nav-title">Getting Started</div>
+            <ul>
+                <li>
+                    <a class="nav-link" href="#overview" title="Overview & Quick Decision">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        <span class="nav-label">Overview &amp; Decision</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#installation" title="Installation & Setup">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span class="nav-label">Installation &amp; Setup</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#key-rules" title="Flattening Rules Explained">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                        <span class="nav-label">Flattening Rules</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-title">All Use Cases</div>
+            <ul>
+                <li>
+                    <a class="nav-link" href="#uc-ion-project" title="1. Infor ION API Mapping (project)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                        <span class="nav-label">1. Infor ION Mapping</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-records" title="2. Python Dict Processing (to_records)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        <span class="nav-label">2. Python Dict List</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-ndjson" title="3. Data Lake & RAG Streaming (to_ndjson)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                        <span class="nav-label">3. NDJSON Streaming</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-json" title="4. Standard JSON Payload (to_json)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <span class="nav-label">4. Standard JSON</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-batch" title="5. Multi-Record Batch BODs">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                        <span class="nav-label">5. Batch BODs</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-custom" title="6. Custom Separator & Root Node">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        <span class="nav-label">6. Custom Delimiter</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-api" title="7. REST Microservice Tier (FastAPI)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                        <span class="nav-label">7. REST API Server</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-legacy" title="8. Legacy Migration (convert)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                        <span class="nav-label">8. Legacy Migration</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-title">Reference</div>
+            <ul>
+                <li>
+                    <a class="nav-link" href="#api-reference" title="Complete Method Reference">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        <span class="nav-label">Method Reference</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#simulator" title="Interactive Output Previewer">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <span class="nav-label">Interactive Previewer</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="sidebar-links">
+        <a class="ext-link" href="https://github.com/thekakodkar/BODtoJSON" target="_blank" rel="noopener noreferrer" title="GitHub Repository">
+            <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            <span class="ext-label">GitHub Repository</span>
+        </a>
+        <a class="ext-link" href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer" title="PyPI Package">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 7.3L5.4 6 12 2.7 18.6 6 12 9.3zm-10 3.4l10 5 10-5v2.3l-10 5-10-5v-2.3zm0 5l10 5 10-5V20l-10 5-10-5v-2.3z"/></svg>
+            <span class="ext-label">PyPI Package</span>
+        </a>
+        <a class="ext-link" href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" title="Connect on LinkedIn">
+            <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+            <span class="ext-label">Connect on LinkedIn</span>
+        </a>
+    </div>
+</aside>
+
+<main>
+    <div class="content-container">
+        <header class="hero" id="overview">
+            <h1>BODtoJSON: Simplified Usage &amp; Complete Use Case Guide</h1>
+            <p>Transform complex Infor OAGIS XML Business Object Documents (BODs) into clean Python dictionaries, target API schemas, flat JSON, or streaming NDJSON in one line of code, with <strong>zero third-party dependencies</strong>.</p>
+
+            <div class="hero-actions">
+                <a class="hero-btn primary" href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 7.3L5.4 6 12 2.7 18.6 6 12 9.3zm-10 3.4l10 5 10-5v2.3l-10 5-10-5v-2.3zm0 5l10 5 10-5V20l-10 5-10-5v-2.3z"/></svg>
+                    Install from PyPI
                 </a>
-                <a href="https://pypi.org/project/BODtoJSON/" target="_blank" class="w-full sm:w-auto border border-neutral-700 hover:border-white text-white text-base font-medium px-8 py-3 rounded-full transition-all text-center">
-                    PyPI Package
+                <a class="hero-btn" href="https://github.com/thekakodkar/BODtoJSON" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                    View Source on GitHub
                 </a>
-            </div>
-        </div>
-    </header>
-
-    <section id="features" class="py-24 max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20">
-            <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">The Architectural Advantages</h2>
-            <p class="text-neutral-400 max-w-xl mx-auto font-light">Unlocking enterprise transactional value locked within verbose legacy messaging boundaries.</p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="p-8 rounded-2xl bg-[#0B0C0E] border border-neutral-900 hover:border-neutral-800 transition-all">
-                <div class="text-xl font-bold tracking-tight mb-3 text-white">Schema Normalization</div>
-                <p class="text-neutral-400 font-light leading-relaxed">
-                    Flattens nested OAGIS standards and complex XML payloads seamlessly. Translates dense transaction schemas into predictable object models with strict attribute retention.
-                </p>
-            </div>
-            <div class="p-8 rounded-2xl bg-[#0B0C0E] border border-neutral-900 hover:border-neutral-800 transition-all">
-                <div class="text-xl font-bold tracking-tight mb-3 text-white">Streamlined Ingestion</div>
-                <p class="text-neutral-400 font-light leading-relaxed">
-                    Optimized memory management constraints built for high-throughput messaging backbones. Ready to feed distributed logging pipelines, document stores, and lakehouses.
-                </p>
-            </div>
-            <div class="p-8 rounded-2xl bg-[#0B0C0E] border border-neutral-900 hover:border-neutral-800 transition-all">
-                <div class="text-xl font-bold tracking-tight mb-3 text-white">LLM Compatibility</div>
-                <p class="text-neutral-400 font-light leading-relaxed">
-                    Verbose XML structures squander massive token context length. Converting to sparse JSON structures reduces prompt token load drastically for retrieval-augmented generation architectures.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <section id="topology" class="py-24 border-t border-neutral-900 bg-[#020203]">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <p class="text-xs font-semibold uppercase tracking-[0.4em] text-neutral-500 mb-3">Pipeline Overview</p>
-                <h2 class="text-3xl font-bold tracking-tight">The Transformation Topology</h2>
-            </div>
-
-            <div class="border border-neutral-800 rounded-3xl p-8 md:p-12 bg-black shadow-2xl max-w-4xl mx-auto">
-                <div class="flex flex-col items-center space-y-8">
-                    
-                    <div class="flex flex-col items-center w-full max-w-sm">
-                        <div class="bg-neutral-900 border border-neutral-800 text-neutral-400 font-mono text-xs px-4 py-3 rounded-xl tracking-wide w-full text-center">
-                            &lt;BusinessObjectDocument&gt; (Legacy XML Payload)
-                        </div>
-                        <div class="h-8 w-px bg-neutral-800"></div>
-                    </div>
-
-                    <div class="w-full border border-neutral-700 bg-[#060709] rounded-2xl p-6 md:p-8 relative">
-                        <div class="absolute -top-3 left-6 bg-white text-black font-mono text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-md">
-                            bodtojson parsing runtime
-                        </div>
-                        
-                        <div class="flex flex-col items-center space-y-6">
-                            <div class="w-full bg-black border border-neutral-800 p-4 rounded-xl flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-2 h-2 rounded-full bg-white"></div>
-                                    <span class="text-sm font-semibold tracking-tight">01. DOM Element Decomposition</span>
-                                </div>
-                                <span class="text-xs font-mono text-neutral-500">Node Stripping</span>
-                            </div>
-
-                            <div class="h-4 w-px bg-neutral-800"></div>
-
-                            <div class="w-full bg-black border border-neutral-800 p-4 rounded-xl flex items-center justify-between relative overflow-hidden">
-                                <div class="absolute inset-y-0 left-0 w-1 bg-neutral-700"></div>
-                                <div class="flex items-center space-x-3 pl-2">
-                                    <div class="w-2 h-2 rounded-full bg-neutral-500 animate-pulse"></div>
-                                    <span class="text-sm font-semibold tracking-tight text-neutral-300">02. Schema Mapping & Type Alignment</span>
-                                </div>
-                                <span class="text-xs font-mono text-neutral-500">Dynamic Key Reduction</span>
-                            </div>
-
-                            <div class="h-4 w-px bg-neutral-800"></div>
-
-                            <div class="w-full bg-black border border-neutral-800 p-4 rounded-xl flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-2 h-2 rounded-full bg-white"></div>
-                                    <span class="text-sm font-semibold tracking-tight">03. Minified Object Generation</span>
-                                </div>
-                                <span class="text-xs font-mono text-neutral-500">BOD Payload Output</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col items-center w-full max-w-sm">
-                        <div class="h-8 w-px bg-neutral-800"></div>
-                        <div class="bg-white text-black font-semibold text-xs px-5 py-3 rounded-full tracking-wide w-full text-center shadow-lg font-mono">
-                            { "status": "success", "data": JSON }
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="installation" class="py-24 bg-[#050607] border-t border-b border-neutral-900">
-        <div class="max-w-5xl mx-auto px-6">
-            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-center mb-16">Implementation Matrix</h2>
-            
-            <div class="bg-black border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl">
-                <div class="flex items-center space-x-2 px-4 py-3 border-b border-neutral-900 bg-neutral-950/50">
-                    <div class="w-3 h-3 rounded-full bg-neutral-800"></div>
-                    <div class="w-3 h-3 rounded-full bg-neutral-800"></div>
-                    <div class="w-3 h-3 rounded-full bg-neutral-800"></div>
-                    <span class="text-xs text-neutral-500 font-mono pl-4">pip install bodtojson</span>
-                </div>
-                <div class="p-6 font-mono text-sm leading-relaxed overflow-x-auto text-neutral-300">
-                    <p class="text-neutral-500"># Install the stable processing library</p>
-                    <p class="mb-4"><span class="text-neutral-400">$</span> pip install bodtojson</p>
-                    
-                    <p class="text-neutral-500"># Initialize the high-throughput parser</p>
-                    <p><span class="text-purple-400">from</span> bodtojson <span class="text-purple-400">import</span> BODParser</p>
-                    <br>
-                    <p><span class="text-neutral-500"># Load complex legacy XML message string</span></p>
-                    <p>xml_data = <span class="text-green-400">"&lt;BusinessObjectDocument&gt;...&lt;/BusinessObjectDocument&gt;"</span></p>
-                    <br>
-                    <p><span class="text-neutral-500"># Parse directly to compliant structural JSON</span></p>
-                    <p>json_output = BODParser.convert(xml_data, minify_keys=<span class="text-amber-400">True</span>)</p>
-                    <p><span class="text-purple-400">print</span>(json_output)</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="distribution" class="py-20 bg-[#000000] border-b border-neutral-900">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-3xl font-bold tracking-tight mb-6">Package Distribution</h2>
-                    <p class="text-neutral-400 font-light leading-relaxed mb-6">
-                        Distributed through the official Python Package Index (PyPI). Architected with strict compliance guidelines ensuring clean separation of logic without data side-effects or outbound analytics tracking—essential for secure ERP/SCM integration matrices.
-                    </p>
-                    <div class="flex space-x-8 border-t border-neutral-900 pt-6">
-                        <div>
-                            <div class="text-2xl font-bold tracking-tight text-white">v1.0.0</div>
-                            <div class="text-xs uppercase tracking-widest text-neutral-500 mt-1">Stable Release</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-bold tracking-tight text-white">100%</div>
-                            <div class="text-xs uppercase tracking-widest text-neutral-500 mt-1">Sovereign Parsing</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-black border border-neutral-800 rounded-2xl p-6 font-mono text-xs space-y-4 text-neutral-400">
-                    <div class="flex justify-between items-center pb-2 border-b border-neutral-900">
-                        <span class="text-neutral-500">Registry Path</span>
-                        <a href="https://pypi.org/project/BODtoJSON/" target="_blank" class="text-neutral-300 hover:underline">pypi.org/project/bodtojson</a>
-                    </div>
-                    <div class="flex justify-between items-center pb-2 border-b border-neutral-900">
-                        <span class="text-neutral-500">Licensing</span>
-                        <span class="text-neutral-200">MIT Open Source</span>
-                    </div>
-                    <div class="flex justify-between items-center pb-2 border-b border-neutral-900">
-                        <span class="text-neutral-500">Target Frameworks</span>
-                        <span class="text-neutral-200">FastAPI / AWS Lambda / Airflow</span>
-                    </div>
-                    <div class="bg-neutral-950 p-4 rounded-xl border border-neutral-900 text-neutral-300 text-sm">
-                        <span class="text-neutral-600">$</span> pip install bodtojson
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="author" class="py-24 bg-[#020203]">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            
-            <div class="mb-8 flex justify-center">
-                <div class="relative group">
-                    <div class="absolute -inset-0.5 bg-gradient-to-r from-neutral-800 to-white rounded-full opacity-30 blur group-hover:opacity-50 transition duration-300"></div>
-                    <img class="relative w-24 h-24 rounded-full object-cover border-2 border-neutral-800" 
-                         src="https://github.com/thekakodkar.png" 
-                         alt="Niraj Kakodkar"
-                         onerror="this.src='https://ui-avatars.com/api/?name=Niraj+Kakodkar&background=0D0E10&color=fff'">
-                </div>
-            </div>
-
-            <p class="text-xs font-semibold uppercase tracking-[0.4em] text-neutral-500 mb-4">Architectural Provenance</p>
-            <h2 class="text-3xl font-bold tracking-tight mb-6">Behind the Framework</h2>
-            <p class="text-lg text-neutral-300 font-light max-w-2xl mx-auto leading-relaxed mb-6">
-                BODtoJSON was conceptualized and engineered by <strong>Niraj Kakodkar</strong>, an AI strategist and technical director with over two decades of enterprise digital transformation history.
-            </p>
-            <p class="text-base text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed mb-12">
-                This project focuses directly on supply chain data liberation—allowing complex enterprise transaction pipelines to instantly feed contemporary AI applications, analytics structures, and modern cloud architectures.
-            </p>
-            
-            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-xl mx-auto">
-                <a href="https://www.linkedin.com/in/thekakodkar" target="_blank" class="w-full sm:w-auto text-xs font-semibold uppercase tracking-wider bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white px-6 py-3 rounded-full transition-all">
-                    Connect on LinkedIn
-                </a>
-                <a href="https://github.com/thekakodkar" target="_blank" class="w-full sm:w-auto text-xs font-semibold uppercase tracking-wider bg-white hover:bg-neutral-200 text-black px-6 py-3 rounded-full transition-all">
-                    Follow on GitHub
-                </a>
-                <a href="https://www.youtube.com/@DecodeAIWithNiraj" target="_blank" class="w-full sm:w-auto text-xs font-semibold uppercase tracking-wider bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white px-6 py-3 rounded-full transition-all">
-                    Decode AI on YouTube
+                <a class="hero-btn" href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+                    Author: Niraj Kakodkar
                 </a>
             </div>
-        </div>
-    </section>
 
-    <footer class="py-16 max-w-7xl mx-auto px-6 text-center text-neutral-500 text-sm border-t border-neutral-950">
-        <p class="mb-2 font-medium tracking-wide">&copy; 2026 BODtoJSON architecture. All rights reserved.</p>
-        <p class="font-light text-neutral-600">Engineered for low-latency serialization loops and decoupled enterprise application data streams.</p>
-    </footer>
+            <div class="pill-row">
+                <span class="pill">100% Python Standard Library</span>
+                <span class="pill">Infor ION Scripting Ready</span>
+                <span class="pill">Data Lakehouse &amp; RAG Optimized</span>
+                <span class="pill">Optional FastAPI Microservice</span>
+            </div>
+        </header>
+
+        <!-- QUICK DECISION MATRIX -->
+        <section>
+            <h2>Which Method Should I Use?</h2>
+            <p>Pick the function that matches your destination system. All functions automatically strip XML namespaces, handle UTF-8 BOM characters, and remove the administrative OAGIS Verb (<code class="inline">Sync</code>, <code class="inline">Process</code>, <code class="inline">Show</code>, etc.).</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Your Use Case</th>
+                        <th>Function to Call</th>
+                        <th>Return Type</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Map BOD directly to a target REST API schema</strong></td>
+                        <td><code class="inline">project(xml, verb, schema)</code></td>
+                        <td><code class="inline">list[dict]</code></td>
+                        <td>Infor ION Scripting, third-party SaaS connectors</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Work with Python dicts &amp; header metadata</strong></td>
+                        <td><code class="inline">to_records(xml, verb, include_header=True)</code></td>
+                        <td><code class="inline">list[dict]</code></td>
+                        <td>Custom business rules, conditional logic in Python</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stream records to Snowflake, Databricks, or Vector DB</strong></td>
+                        <td><code class="inline">to_ndjson(xml, verb)</code></td>
+                        <td><code class="inline">str</code> (lines)</td>
+                        <td>Data Lakehouses, Kafka/Event Hubs, RAG pipelines</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Get a single flat JSON string</strong></td>
+                        <td><code class="inline">to_json(xml, verb)</code></td>
+                        <td><code class="inline">str</code> (JSON)</td>
+                        <td>Document stores, webhook payloads, logging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Expose conversion as an HTTP microservice</strong></td>
+                        <td><code class="inline">uvicorn BODtoJSON.api:app</code></td>
+                        <td>HTTP Response</td>
+                        <td>Containerized integration hubs, API gateways</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- INSTALLATION -->
+        <section id="installation">
+            <h2>Installation</h2>
+            <div class="use-case-card">
+                <div class="card-header">
+                    <span class="card-title">Core Library vs. Full API Server</span>
+                    <span class="tag green">Zero Core Dependencies</span>
+                </div>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre># 1. Core library only (Ideal for Infor ION Scripting, AWS Lambda, ETL workers)
+pip install BODtoJSON==2.1.1
+
+# 2. Core library + FastAPI &amp; Uvicorn REST server
+pip install "BODtoJSON[api]==2.1.1"</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- FLATTENING RULES -->
+        <section id="key-rules">
+            <h2>How XML Keys Are Flattened</h2>
+            <p>Every nested XML tag is joined with an underscore (<code class="inline">_</code>) starting from the Noun root inside <code class="inline">DataArea</code>:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>OAGIS XML Pattern</th>
+                        <th>Flattened Key</th>
+                        <th>Example Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Simple element: <code class="inline">&lt;DisplayID&gt;PSU000049&lt;/DisplayID&gt;</code></td>
+                        <td><code class="inline">PurchaseOrder_PurchaseOrderHeader_DisplayID</code></td>
+                        <td><code class="inline">"PSU000049"</code></td>
+                    </tr>
+                    <tr>
+                        <td>Element with attributes: <code class="inline">&lt;ID accountingEntity="3555"&gt;PSU000049&lt;/ID&gt;</code></td>
+                        <td><code class="inline">..._DocumentID_ID_#text</code><br><code class="inline">..._DocumentID_ID_@accountingEntity</code></td>
+                        <td><code class="inline">"PSU000049"</code><br><code class="inline">"3555"</code></td>
+                    </tr>
+                    <tr>
+                        <td>Repeating sibling tags: multiple <code class="inline">&lt;PurchaseOrderLine&gt;</code></td>
+                        <td><code class="inline">..._PurchaseOrderLine_0_LineNumber</code><br><code class="inline">..._PurchaseOrderLine_1_LineNumber</code></td>
+                        <td><code class="inline">"10"</code><br><code class="inline">"20"</code></td>
+                    </tr>
+                    <tr>
+                        <td>Header context (<code class="inline">include_header=True</code>)</td>
+                        <td><code class="inline">Sync_AccountingEntityID</code><br><code class="inline">ApplicationArea_Sender_LogicalID</code></td>
+                        <td><code class="inline">"3555"</code><br><code class="inline">"lid://infor.ln..."</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- USE CASES -->
+        <section>
+            <h2>Every Use Case: Copy-Paste Ready</h2>
+
+            <!-- USE CASE 1 -->
+            <div class="use-case-card" id="uc-ion-project">
+                <div class="card-header">
+                    <span class="card-title">Use Case 1: Infor ION Scripting (Map BOD to Target API Schema)</span>
+                    <span class="tag">Recommended for ION</span>
+                </div>
+                <p>Eliminate manual <code class="inline">ElementTree</code> namespace parsing, <code class="inline">json.loads()</code> loops, and repetitive <code class="inline">.get()</code> boilerplate. Define a declarative dictionary and let <code class="inline">project()</code> extract header fields (<code class="inline">Sync_AccountingEntityID</code>), interpolate strings, map keys, and coerce booleans in one call.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>import json
+from BODtoJSON import project
+
+# Declarative target schema:
+# - "{Key}" interpolates any Noun or Header field (missing keys safely become "")
+# - Exact key strings pull values directly
+# - Callables (lambda) compute custom expressions
+# - Constants (True, "DIMENSION1") pass straight through
+SCHEMA = {
+    "externalSystemId": "company[{Sync_AccountingEntityID}];DIMENSION1;{ChartOfAccounts_BaseChartOfAccounts_GLNominalAccount}",
+    "companyId": "company[{Sync_AccountingEntityID}]",
+    "dimensionName": "DIMENSION1",
+    "isActive": True,
+    "usableInPurchase": lambda r: r.get("ChartOfAccounts_Status_Code") == "Open"
+}
+
+# input_var is provided automatically by Infor ION Scripting
+items = project(input_var, verb="Sync", schema=SCHEMA, include_header=True)
+output_var = json.dumps(items)</pre>
+                </div>
+            </div>
+
+            <!-- USE CASE 2 -->
+            <div class="use-case-card" id="uc-records">
+                <div class="card-header">
+                    <span class="card-title">Use Case 2: Native Python Dictionary List (Custom Business Logic)</span>
+                    <span class="tag green">No JSON Round-Trip</span>
+                </div>
+                <p>When you need full Python control (filtering, enrichment, database inserts) without parsing JSON strings back and forth, use <code class="inline">to_records()</code>. It raises a standard <code class="inline">ValueError</code> on invalid XML.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import to_records
+
+records = to_records(xml_payload, verb="Sync", include_header=True)
+
+for rec in records:
+    entity = rec.get("Sync_AccountingEntityID")
+    po_id = rec.get("PurchaseOrder_PurchaseOrderHeader_DisplayID")
+    amount = float(rec.get("PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_#text", 0))
+    print(f"Entity {entity} | PO {po_id} | Amount: {amount}")</pre>
+                </div>
+            </div>
+
+            <!-- USE CASE 3 -->
+            <div class="use-case-card" id="uc-ndjson">
+                <div class="card-header">
+                    <span class="card-title">Use Case 3: Data Lakehouse &amp; Vector DB Streaming (NDJSON)</span>
+                    <span class="tag">High-Throughput ETL</span>
+                </div>
+                <p>Generates compact, zero-whitespace, newline-delimited JSON (<code class="inline">
+</code> terminated). Ideal for Snowflake Snowpipe, Databricks Auto Loader, AWS S3/Glue, and RAG embedding pipelines.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import to_ndjson
+
+# Returns one compact JSON object per line, terminated with 
+
+ndjson_stream = to_ndjson(xml_payload, verb="Sync")
+
+# Write directly to S3 / Data Lake staging file
+with open("purchase_orders.ndjson", "w", encoding="utf-8") as f:
+    f.write(ndjson_stream)</pre>
+                </div>
+            </div>
+
+            <!-- USE CASE 4 -->
+            <div class="use-case-card" id="uc-json">
+                <div class="card-header">
+                    <span class="card-title">Use Case 4: Standard Flattened JSON String</span>
+                    <span class="tag slate">Document Stores</span>
+                </div>
+                <p>Converts the primary Noun inside <code class="inline">DataArea</code> into a single flat JSON string for NoSQL document databases, message queues, or webhook calls.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import to_json
+
+flat_json_str = to_json(xml_payload, verb="Sync")
+print(flat_json_str)</pre>
+                </div>
+            </div>
+
+            <!-- USE CASE 5 -->
+            <div class="use-case-card" id="uc-batch">
+                <div class="card-header">
+                    <span class="card-title">Use Case 5: Multi-Record Batch BODs</span>
+                    <span class="tag green">Automatic Unpacking</span>
+                </div>
+                <p>When ERP LN publishes a batch BOD containing multiple sibling Nouns inside <code class="inline">DataArea</code> (e.g., 50 <code class="inline">&lt;PurchaseOrder&gt;</code> blocks in one <code class="inline">SyncPurchaseOrder</code> message), <code class="inline">to_ndjson()</code>, <code class="inline">to_records()</code>, and <code class="inline">project()</code> automatically unpack every Noun into its own record.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import to_records, to_ndjson
+
+# Batch XML with 25 &lt;ItemMaster&gt; elements under &lt;DataArea&gt;
+items = to_records(batch_item_xml, verb="Sync")
+print(f"Unpacked {len(items)} individual records")
+
+# Or emit 25 compact NDJSON lines in one call
+lines = to_ndjson(batch_item_xml, verb="Sync")</pre>
+                </div>
+            </div>
+
+            <!-- USE CASE 6 -->
+            <div class="use-case-card" id="uc-custom">
+                <div class="card-header">
+                    <span class="card-title">Use Case 6: Custom Delimiter or Non-Standard Root Node</span>
+                    <span class="tag slate">Advanced Configuration</span>
+                </div>
+                <p>Instantiate <code class="inline">BODConverter</code> directly if you want dot-notation keys (<code class="inline">PurchaseOrder.Header.ID</code>) instead of underscores, or need to target a custom container node.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import BODConverter
+
+# Use '.' instead of '_' for flattened keys
+dot_converter = BODConverter(pnode="DataArea", separator=".")
+records = dot_converter.to_records(xml_payload, verb="Process")
+
+print(records[0]["PurchaseOrder.PurchaseOrderHeader.DisplayID"])</pre>
+                </div>
+            </div>
+
+            <!-- USE CASE 7 -->
+            <div class="use-case-card" id="uc-api">
+                <div class="card-header">
+                    <span class="card-title">Use Case 7: REST Microservice Tier (FastAPI)</span>
+                    <span class="tag">Optional [api] Extra</span>
+                </div>
+                <p>Run <code class="inline">BODtoJSON</code> as a standalone HTTP service for non-Python applications or integration platforms.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre># Start the server locally or inside Docker
+uvicorn BODtoJSON.api:app --host 0.0.0.0 --port 8000
+
+# Available Endpoints:
+# POST /convert/ndjson?verb=Sync   (Body: raw text/plain XML -> application/x-ndjson)
+# POST /convert/json?verb=Sync     (Body: raw text/plain XML -> application/json)
+# POST /project                    (Body: {"xml": "...", "verb": "Sync", "schema_map": {...}})
+# GET  /health                     (Service health check)</pre>
+                </div>
+            </div>
+
+            <!-- USE CASE 8 -->
+            <div class="use-case-card" id="uc-legacy">
+                <div class="card-header">
+                    <span class="card-title">Use Case 8: Legacy Code Compatibility</span>
+                    <span class="tag amber">Deprecated in v3.0.0</span>
+                </div>
+                <p>Existing scripts calling <code class="inline">convert(xml, verb)</code> continue to work without breaking changes, routing internally to <code class="inline">to_json()</code> while logging a non-blocking <code class="inline">DeprecationWarning</code>.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import convert
+
+# Works seamlessly, emits DeprecationWarning (scheduled for removal in v3.0.0)
+result = convert(xml_payload, verb="Sync")</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- API REFERENCE -->
+        <section id="api-reference">
+            <h2>Complete API Reference</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Signature</th>
+                        <th>Parameters</th>
+                        <th>Returns</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code class="inline">project(bod_xml, verb, schema, include_header=True, coerce_booleans=True)</code></td>
+                        <td>
+                            <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
+                            <strong>verb</strong> (str): OAGIS Verb to strip (e.g. <code class="inline">"Sync"</code>).<br>
+                            <strong>schema</strong> (dict): Target field mapping rules.<br>
+                            <strong>include_header</strong> (bool): Include <code class="inline">ApplicationArea</code> &amp; Verb fields.<br>
+                            <strong>coerce_booleans</strong> (bool): Convert <code class="inline">"true"</code>/<code class="inline">"false"</code> strings to <code class="inline">bool</code>.
+                        </td>
+                        <td><code class="inline">List[Dict[str, Any]]</code></td>
+                    </tr>
+                    <tr>
+                        <td><code class="inline">to_records(bod_xml, verb, include_header=False)</code></td>
+                        <td>
+                            <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
+                            <strong>verb</strong> (str): OAGIS Verb to strip.<br>
+                            <strong>include_header</strong> (bool): Merge header metadata into each record.
+                        </td>
+                        <td><code class="inline">List[Dict[str, Any]]</code></td>
+                    </tr>
+                    <tr>
+                        <td><code class="inline">to_ndjson(bod_xml, verb)</code></td>
+                        <td>
+                            <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
+                            <strong>verb</strong> (str): OAGIS Verb to strip.
+                        </td>
+                        <td><code class="inline">str</code> (Newline-delimited compact JSON)</td>
+                    </tr>
+                    <tr>
+                        <td><code class="inline">to_json(bod_xml, verb)</code></td>
+                        <td>
+                            <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
+                            <strong>verb</strong> (str): OAGIS Verb to strip.
+                        </td>
+                        <td><code class="inline">str</code> (Flat JSON string)</td>
+                    </tr>
+                    <tr>
+                        <td><code class="inline">BODConverter(pnode='DataArea', separator='_')</code></td>
+                        <td>
+                            <strong>pnode</strong> (str): Container tag holding Verb &amp; Noun.<br>
+                            <strong>separator</strong> (str): Delimiter between nested tag names.
+                        </td>
+                        <td><code class="inline">BODConverter</code> instance</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- INTERACTIVE BROWSER SIMULATOR -->
+        <section id="simulator">
+            <h2>Interactive Output Previewer</h2>
+            <div class="playground">
+                <p>Test how your OAGIS XML flattens directly in the browser before deploying to Infor ION.</p>
+                <div class="pg-grid">
+                    <div>
+                        <label><strong>Input OAGIS XML</strong></label>
+                        <textarea id="xmlInput"><SyncPurchaseOrder releaseID="9.2">
+  <ApplicationArea>
+    <Sender><LogicalID>lid://infor.ln.ln01/3555</LogicalID></Sender>
+  </ApplicationArea>
+  <DataArea>
+    <Sync>
+      <TenantID>PRD_01</TenantID>
+      <AccountingEntityID>3555</AccountingEntityID>
+    </Sync>
+    <PurchaseOrder>
+      <PurchaseOrderHeader>
+        <DocumentID>
+          <ID accountingEntity="3555" variationID="5">PSU000049</ID>
+        </DocumentID>
+        <DisplayID>PSU000049</DisplayID>
+        <ExtendedAmount currencyID="EUR">2500</ExtendedAmount>
+      </PurchaseOrderHeader>
+    </PurchaseOrder>
+  </DataArea>
+</SyncPurchaseOrder></textarea>
+                    </div>
+                    <div>
+                        <label><strong>Flattened Output Preview</strong></label>
+                        <textarea id="jsonOutput" readonly></textarea>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="action" onclick="simulate('json')">Preview to_json()</button>
+                    <button class="action" onclick="simulate('ndjson')">Preview to_ndjson()</button>
+                    <button class="action secondary" onclick="simulate('header')">Preview to_records(include_header=True)</button>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <span>BODtoJSON v2.1.1 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | MIT License</span>
+            <div class="footer-links">
+                <a href="https://github.com/thekakodkar/BODtoJSON" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">PyPI</a>
+                <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
+        </footer>
+    </div>
+</main>
+
+<script>
+    // Sidebar Toggle Logic with LocalStorage Persistence
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    if (localStorage.getItem("bodtojson_sidebar_collapsed") === "true") {
+        document.body.classList.add("sidebar-collapsed");
+    }
+
+    sidebarToggle.addEventListener("click", () => {
+        document.body.classList.toggle("sidebar-collapsed");
+        localStorage.setItem(
+            "bodtojson_sidebar_collapsed",
+            document.body.classList.contains("sidebar-collapsed")
+        );
+    });
+
+    function copyCode(btn) {
+        const pre = btn.nextElementSibling;
+        navigator.clipboard.writeText(pre.innerText).then(() => {
+            const orig = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => btn.innerText = orig, 1500);
+        });
+    }
+
+    function flattenNode(node, prefix = "", sep = "_") {
+        let out = {};
+        const tag = node.localName;
+        const cur = prefix ? `${prefix}${sep}${tag}` : tag;
+
+        for (let attr of node.attributes || []) {
+            if (!attr.name.startsWith("xmlns")) {
+                out[`${cur}${sep}@${attr.localName}`] = attr.value;
+            }
+        }
+
+        const children = Array.from(node.children || []);
+        const text = Array.from(node.childNodes)
+            .filter(n => n.nodeType === 3)
+            .map(n => n.nodeValue.trim())
+            .join("");
+
+        if (children.length === 0) {
+            if (Object.keys(out).length > 0) {
+                if (text) out[`${cur}${sep}#text`] = text;
+            } else {
+                out[cur] = text || null;
+            }
+            return out;
+        }
+
+        if (text) out[`${cur}${sep}#text`] = text;
+
+        const grouped = {};
+        children.forEach(c => {
+            grouped[c.localName] = grouped[c.localName] || [];
+            grouped[c.localName].push(c);
+        });
+
+        for (const [cTag, list] of Object.entries(grouped)) {
+            if (list.length === 1) {
+                Object.assign(out, flattenNode(list[0], cur, sep));
+            } else {
+                list.forEach((el, idx) => {
+                    const idxPrefix = `${cur}${sep}${cTag}${sep}${idx}`;
+                    for (let attr of el.attributes || []) {
+                        if (!attr.name.startsWith("xmlns")) {
+                            out[`${idxPrefix}${sep}@${attr.localName}`] = attr.value;
+                        }
+                    }
+                    Array.from(el.children).forEach(sub => {
+                        Object.assign(out, flattenNode(sub, idxPrefix, sep));
+                    });
+                });
+            }
+        }
+        return out;
+    }
+
+    function simulate(mode) {
+        const xmlStr = document.getElementById("xmlInput").value;
+        const outBox = document.getElementById("jsonOutput");
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xmlStr, "text/xml");
+            const dataArea = doc.getElementsByTagName("DataArea")[0];
+            if (!dataArea) throw new Error("DataArea not found");
+
+            let headerCtx = {};
+            const appArea = doc.getElementsByTagName("ApplicationArea")[0];
+            if (appArea) Object.assign(headerCtx, flattenNode(appArea));
+
+            const children = Array.from(dataArea.children);
+            const verbNode = children[0];
+            if (verbNode) Object.assign(headerCtx, flattenNode(verbNode));
+
+            const nounNodes = children.slice(1);
+            if (nounNodes.length === 0) throw new Error("No Noun element found inside DataArea");
+
+            if (mode === "ndjson") {
+                outBox.value = nounNodes.map(n => JSON.stringify(flattenNode(n))).join("\n") + "\n";
+            } else if (mode === "header") {
+                const recs = nounNodes.map(n => ({ ...headerCtx, ...flattenNode(n) }));
+                outBox.value = JSON.stringify(recs, null, 2);
+            } else {
+                outBox.value = JSON.stringify(flattenNode(nounNodes[0]), null, 2);
+            }
+        } catch (err) {
+            outBox.value = "Error: " + err.message;
+        }
+    }
+
+    window.onload = () => simulate("json");
+</script>
 
 </body>
 </html>
