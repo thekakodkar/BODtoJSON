@@ -3,7 +3,7 @@
 **BODtoJSON** is a zero-dependency, enterprise-grade Python data liquidity engine designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON, streaming NDJSON, and declarative target schemas.
 
 <p>
-<a hredf="https://thekakodkar.github.io/BODtoJSON/"> BODtoJSON Library Documentation </a>
+<a href="https://thekakodkar.github.io/BODtoJSON/"> BODtoJSON Library Documentation </a>
 </p>
 <center><img width="769" height="336" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" /></center>
 
