@@ -4,16 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "BODtoJSON"
-version = "2.1.0"
+version = "2.1.1"
 authors = [
-  { name="Niraj Kakodkar" },
+  { name = "Niraj Kakodkar" },
 ]
-description = "Zero-dependency OAGIS BOD to Flattened JSON and NDJSON converter"
+description = "Zero-dependency OAGIS BOD to Flattened JSON, NDJSON, and Schema Projection engine"
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = [
-    "xmltodict",
-]
+dependencies = []
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Information Technology",
@@ -21,5 +19,14 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/thekakodkar/BODtoJSON"
+
+[tool.setuptools.packages.find]
+where = ["src"]
