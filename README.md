@@ -1,4 +1,4 @@
-# BODtoJSON v2.2.0
+# BODtoJSON v2.3.0
 
 **BODtoJSON** is a zero-dependency, enterprise-grade Python data liquidity engine designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON, streaming NDJSON, and declarative target schemas.
 
@@ -7,9 +7,9 @@
 </p>
 <center><img width="769" height="336" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" /></center>
 
-v2.1.0 establishes a zero-dependency core engine, introduces native single-pass ElementTree traversal, adds declarative schema projection (`project()` / `to_records()`) for Infor ION Scripting, and delivers a dual-pipeline streaming standard for Data Lakehouses and Vector Databases.
+v2.3.0 establishes a zero-dependency core engine, introduces native single-pass ElementTree traversal, adds declarative schema projection (`project()` / `to_records()`) for Infor ION Scripting, and delivers a dual-pipeline streaming standard for Data Lakehouses and Vector Databases.
 
-## 🚀 What’s New in v2.2.0 (vs. v1.0.0)
+## 🚀 What’s New in v2.3.0 (vs. v1.0.0)
 
 * **Zero-Dependency Core Engine:** Removed `xmltodict` in favor of a single-pass recursive traversal built purely on Python’s native `xml.etree.ElementTree`. Eliminates external supply-chain risks, shrinks deployment footprints for air-gapped or Infor ION environments, and halves intermediate memory allocations.
 
@@ -25,7 +25,7 @@ v2.1.0 establishes a zero-dependency core engine, introduces native single-pass 
 
 ## 📈 Architectural Comparison
 
-| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.1.0)** | 
+| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.3.0)** | 
 | ----- | ----- | ----- | 
 | **Core Dependencies** | Relied on `xmltodict` | **Zero External Dependencies (100% Python Stdlib)** | 
 | **Memory & Speed** | Double-pass XML $\rightarrow$ Dict $\rightarrow$ Flat Dict | **Single-pass ElementTree traversal (\~50% lower memory)** | 
@@ -58,7 +58,7 @@ pip install "BODtoJSON[api]"
 BODtoJSON/
 ├── src/
 │   └── BODtoJSON/
-│       ├── __init__.py      # Package version (2.1.0) & API exports
+│       ├── __init__.py      # Package version (2.3.0) & API exports
 │       ├── mapper.py        # Zero-Dependency Dual-Pipeline & Projection Engine
 │       └── api.py           # Optional FastAPI Microservice Ingestion Layer
 ├── tests/
@@ -180,7 +180,7 @@ Open `http://127.0.0.1:8000/docs` to test `/convert/ndjson`, `/convert/json`, an
 
 ## 🤝 Commercial Value
 
-By normalizing complex ERP structures into zero-dependency, flat JSON, streaming NDJSON, and projected API payloads, **BODtoJSON v2.1.0** eliminates third-party library bloat and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
+By normalizing complex ERP structures into zero-dependency, flat JSON, streaming NDJSON, and projected API payloads, **BODtoJSON v2.3.0** eliminates third-party library bloat and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
 
 **Author:** Niraj Kakodkar
 

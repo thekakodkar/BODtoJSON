@@ -22,7 +22,7 @@ def run_business_validation(mode: str = "ndjson"):
     Supported modes: 'ndjson', 'json', 'project', 'legacy'
     """
     print("=" * 60)
-    print(f"BODtoJSON v2.1.0 | Payload Validation Profile: [{mode.upper()}]")
+    print(f"BODtoJSON v2.3.0 | Payload Validation Profile: [{mode.upper()}]")
     print("=" * 60)
 
     try:
