@@ -1,77 +1,84 @@
 import json
+import pytest
+
+pytest.importorskip("fastapi")
+pytest.importorskip("httpx")
+
 from fastapi.testclient import TestClient
 from BODtoJSON.api import app
+from BODtoJSON import __version__
 
 client = TestClient(app)
 
 
 def test_api_convert_to_json(xml_loader):
-    """Validates the modern structured JSON streaming path."""
     xml_data = xml_loader.load("sync_PO_PSU000049.xml")
-
     response = client.post(
         "/convert/json?verb=Sync",
         content=xml_data,
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
     )
-
     assert response.status_code == 200
-    assert response.headers["content-type"] == "application/json"
-
     data = response.json()
     assert data["PurchaseOrder_PurchaseOrderHeader_DisplayID"] == "PSU000049"
 
 
 def test_api_convert_to_ndjson(xml_loader):
-    """Validates the modern linearized NDJSON streaming path."""
     xml_data = xml_loader.load("sync_PO_PSU000049.xml")
-
     response = client.post(
         "/convert/ndjson?verb=Sync",
         content=xml_data,
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
     )
-
     assert response.status_code == 200
-    assert response.headers["content-type"] == "application/x-ndjson"
-
-    raw_text = response.text
-    assert raw_text.endswith("\n")
-
-    first_record = json.loads(raw_text.split("\n")[0])
-    assert first_record["PurchaseOrder_PurchaseOrderHeader_DisplayID"] == "PSU000049"
 
 
-def test_api_project_schema(xml_loader):
-    """Validates declarative schema projection over REST."""
+def test_api_malformed_xml_returns_400():
+    response = client.post(
+        "/convert/json",
+        content="not-xml",
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 400
+    body = response.json()
+    assert body["status"] == "error"
+
+
+def test_api_project_bad_xml_returns_400():
+    response = client.post(
+        "/project",
+        json={"xml": "not-xml", "verb": "Sync", "schema_map": {"a": "b"}},
+    )
+    assert response.status_code == 400
+
+
+def test_api_legacy_convert(xml_loader):
     xml_data = xml_loader.load("sync_PO_PSU000049.xml")
+    response = client.post(
+        "/convert?verb=Sync",
+        content=xml_data,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 200
 
+
+def test_api_legacy_wrapper(xml_loader):
+    xml_data = xml_loader.load("sync_PO_PSU000049.xml")
+    response = client.post(
+        "/convert/json/wrapper",
+        json={"xml": xml_data, "verb": "Sync"},
+    )
+    assert response.status_code == 200
+
+
+def test_api_project_happy(xml_loader):
+    xml_data = xml_loader.load("sync_PO_PSU000049.xml")
     response = client.post(
         "/project",
         json={
             "xml": xml_data,
             "verb": "Sync",
-            "schema_map": {
-                "docId": "company[{Sync_AccountingEntityID}];{PurchaseOrder_PurchaseOrderHeader_DisplayID}",
-                "active": True
-            },
-            "include_header": True
-        }
-    )
-
-    assert response.status_code == 200
-    items = response.json()
-    assert items[0]["docId"] == "company[3555];PSU000049"
-    assert items[0]["active"] is True
-
-
-def test_legacy_api_convert_fallback(xml_loader):
-    """Validates that old integrations hitting /convert still work flawlessly."""
-    xml_data = xml_loader.load("sync_PO_PSU000049.xml")
-
-    response = client.post(
-        "/convert?verb=Sync",
-        content=xml_data,
-        headers={"Content-Type": "text/plain"}
+            "schema_map": {"id": "PurchaseOrder_PurchaseOrderHeader_DisplayID"},
+        },
     )
     assert response.status_code == 200

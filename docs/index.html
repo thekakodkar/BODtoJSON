@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BODtoJSON v2.3.0 | Enterprise Documentation & Use Case Guide</title>
+    <title>BODtoJSON v2.3.1 | Enterprise Documentation & Use Case Guide</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -662,13 +662,13 @@
             <div class="brand-top">
                 <div class="brand-title-wrap">
                     <span class="brand">BODtoJSON</span>
-                    <span class="badge-version">v2.3.0</span>
+                    <span class="badge-version">v2.3.1</span>
                 </div>
                 <button class="toggle-btn" id="sidebarToggle" title="Toggle Sidebar" aria-label="Toggle Sidebar">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
             </div>
-            <div class="brand-sub">Zero-Dependency OAGIS Data Liquidity Engine</div>
+            <div class="brand-sub">Safe OAGIS BOD to Flattened JSON Engine</div>
         </div>
 
         <div class="nav-group">
@@ -788,7 +788,7 @@
     <div class="content-container">
         <header class="hero" id="overview">
             <h1>BODtoJSON: Simplified Usage &amp; Complete Use Case Guide</h1>
-            <p>Transform complex Infor OAGIS XML Business Object Documents (BODs) into clean Python dictionaries, target API schemas, flat JSON, or streaming NDJSON in one line of code, with <strong>zero third-party dependencies</strong>.</p>
+            <p>Transform complex Infor OAGIS XML Business Object Documents (BODs) into clean Python dictionaries, target API schemas, flat JSON, or streaming NDJSON in one line of code, using <strong>defusedxml</strong> for secure parsing.</p>
 
             <div class="hero-actions">
                 <a class="hero-btn primary" href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">
@@ -868,15 +868,15 @@
             <div class="use-case-card">
                 <div class="card-header">
                     <span class="card-title">Core Library vs. Full API Server</span>
-                    <span class="tag green">Zero Core Dependencies</span>
+                    <span class="tag green">Secure Parsing (defusedxml)</span>
                 </div>
                 <div class="code-wrapper">
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre># 1. Core library only (Ideal for Infor ION Scripting, AWS Lambda, ETL workers)
-pip install BODtoJSON==2.1.1
+pip install BODtoJSON==2.3.1
 
 # 2. Core library + FastAPI &amp; Uvicorn REST server
-pip install "BODtoJSON[api]==2.1.1"</pre>
+pip install "BODtoJSON[api]==2.3.1"</pre>
                 </div>
             </div>
         </section>
@@ -1191,7 +1191,7 @@ result = convert(xml_payload, verb="Sync")</pre>
         </section>
 
         <footer>
-            <span>BODtoJSON v2.3.0 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | MIT License</span>
+            <span>BODtoJSON v2.3.1 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | MIT License</span>
             <div class="footer-links">
                 <a href="https://github.com/thekakodkar/BODtoJSON" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">PyPI</a>

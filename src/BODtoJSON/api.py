@@ -1,13 +1,18 @@
 import json
 from typing import Dict, Any
-from fastapi import FastAPI, Body, Response
+
+from fastapi import FastAPI, Body, Response, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from BODtoJSON import to_json, to_ndjson, project, convert
+
+from BODtoJSON import to_json, to_ndjson, project, convert, __version__, BODParseError, BODStructureError
+
+MAX_BODY_SIZE = 10 * 1024 * 1024  # 10 MiB, aligned with library default
 
 app = FastAPI(
     title="BODtoJSON API",
-    version="2.3.0",
-    description="Zero-Dependency Enterprise OAGIS Integration Data Fabric Engine"
+    version=__version__,
+    description="Safe OAGIS BOD to Flattened JSON engine (defusedxml). Unauthenticated — deploy behind your own auth.",
 )
 
 
@@ -23,12 +28,23 @@ class ProjectRequest(BaseModel):
     include_header: bool = True
 
 
+async def _check_body_size(request: Request):
+    """Simple size guard for raw bodies."""
+    body = await request.body()
+    if len(body) > MAX_BODY_SIZE:
+        return JSONResponse(
+            {"status": "error", "message": f"Request body exceeds {MAX_BODY_SIZE} bytes."},
+            status_code=413,
+        )
+    return None
+
+
 @app.get("/")
 async def root():
     return {
         "service": "BODtoJSON",
         "status": "running",
-        "version": "2.3.0"
+        "version": __version__,
     }
 
 
@@ -37,88 +53,85 @@ async def health():
     return {"status": "healthy"}
 
 
-# -------------------------------------------------------------------
-# MODERN ENDPOINTS
-# -------------------------------------------------------------------
+def _handle_library_result(result_str: str, media_type: str = "application/json"):
+    """If the library returned an error object, turn it into HTTP 400."""
+    try:
+        parsed = json.loads(result_str.strip())
+        if isinstance(parsed, dict) and parsed.get("status") == "error":
+            return JSONResponse(parsed, status_code=400)
+    except json.JSONDecodeError:
+        pass
+    return Response(content=result_str, media_type=media_type)
+
 
 @app.post("/convert/ndjson")
 async def convert_to_ndjson_stream(
-    xml_data: str = Body(..., media_type="text/plain", description="Paste raw OAGIS XML BOD here"),
-    verb: str = "Sync"
+    request: Request,
+    xml_data: str = Body(..., media_type="text/plain"),
+    verb: str = "Sync",
 ):
-    """Transforms raw XML payloads into strict single-line NDJSON format."""
+    size_err = await _check_body_size(request)
+    if size_err:
+        return size_err
     try:
-        result_str = to_ndjson(xml_data, verb)
+        result_str = to_ndjson(xml_data, verb, raise_on_error=True)
         return Response(content=result_str, media_type="application/x-ndjson")
+    except (BODParseError, BODStructureError) as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=400)
     except Exception as e:
-        return Response(
-            content=json.dumps({"status": "error", "message": str(e)}),
-            status_code=500,
-            media_type="application/json"
-        )
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
 
 @app.post("/convert/json")
 async def convert_to_standard_json(
-    xml_data: str = Body(..., media_type="text/plain", description="Paste raw OAGIS XML BOD here"),
-    verb: str = "Sync"
+    request: Request,
+    xml_data: str = Body(..., media_type="text/plain"),
+    verb: str = "Sync",
 ):
-    """Transforms raw XML payloads into standard flattened JSON strings."""
+    size_err = await _check_body_size(request)
+    if size_err:
+        return size_err
     try:
-        result_str = to_json(xml_data, verb)
+        result_str = to_json(xml_data, verb, raise_on_error=True)
         return Response(content=result_str, media_type="application/json")
+    except (BODParseError, BODStructureError) as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=400)
     except Exception as e:
-        return Response(
-            content=json.dumps({"status": "error", "message": str(e)}),
-            status_code=500,
-            media_type="application/json"
-        )
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
 
 @app.post("/project")
 async def project_bod_schema(req: ProjectRequest):
-    """Transforms and projects OAGIS XML directly into a target JSON schema."""
     try:
         items = project(req.xml, req.verb, req.schema_map, include_header=req.include_header)
         return Response(content=json.dumps(items), media_type="application/json")
+    except (BODParseError, BODStructureError) as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=400)
     except Exception as e:
-        return Response(
-            content=json.dumps({"status": "error", "message": str(e)}),
-            status_code=500,
-            media_type="application/json"
-        )
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
 
-# -------------------------------------------------------------------
-# LEGACY ENDPOINTS (Preserved for backward compatibility)
-# -------------------------------------------------------------------
-
+# Legacy endpoints
 @app.post("/convert")
 async def legacy_convert_raw_xml(
-    xml_data: str = Body(..., media_type="text/plain", description="Paste raw OAGIS XML BOD here"),
-    verb: str = "Sync"
+    request: Request,
+    xml_data: str = Body(..., media_type="text/plain"),
+    verb: str = "Sync",
 ):
-    """Legacy endpoint mapping directly to the backward-compatible convert function."""
+    size_err = await _check_body_size(request)
+    if size_err:
+        return size_err
     try:
         result_str = convert(xml_data, verb)
-        return Response(content=result_str, media_type="application/json")
+        return _handle_library_result(result_str)
     except Exception as e:
-        return Response(
-            content=json.dumps({"status": "error", "message": str(e)}),
-            status_code=500,
-            media_type="application/json"
-        )
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
 
 @app.post("/convert/json/wrapper")
 async def legacy_convert_json_wrapper(req: BODRequest):
-    """Legacy structured JSON request endpoint."""
     try:
         result_str = convert(req.xml, req.verb)
-        return Response(content=result_str, media_type="application/json")
+        return _handle_library_result(result_str)
     except Exception as e:
-        return Response(
-            content=json.dumps({"status": "error", "message": str(e)}),
-            status_code=500,
-            media_type="application/json"
-        )
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)

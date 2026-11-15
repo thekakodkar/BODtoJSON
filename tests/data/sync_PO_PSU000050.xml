@@ -13,7 +13,7 @@
         <ConfirmationCode>OnError</ConfirmationCode>
     </Sender>
     <CreationDateTime>2020-06-18T09:41:56Z</CreationDateTime>
-    <BODID>infor-nid:TEST_TST:3555:S_350:PSU000049:?PurchaseOrder&amp;verb=Sync</BODID>
+    <BODID>infor-nid:TEST_TST:3555:S_350:PSU000050:?PurchaseOrder&amp;verb=Sync</BODID>
 </ApplicationArea>
 
 <DataArea>

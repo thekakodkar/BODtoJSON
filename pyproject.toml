@@ -4,19 +4,29 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "BODtoJSON"
-version = "2.3.0"
+version = "2.3.1"
 authors = [
   { name = "Niraj Kakodkar" },
 ]
-description = "Zero-dependency OAGIS BOD to Flattened JSON, NDJSON, and Schema Projection engine"
+description = "Safe OAGIS BOD to Flattened JSON, NDJSON, and Schema Projection engine (defusedxml)"
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = []
+license = { text = "MIT" }
+dependencies = [
+    "defusedxml>=0.7.1",
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
 [project.optional-dependencies]
@@ -24,9 +34,36 @@ api = [
     "fastapi>=0.100.0",
     "uvicorn>=0.20.0",
 ]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "httpx>=0.24.0",
+    "fastapi>=0.100.0",
+]
 
 [project.urls]
-"Homepage" = "https://thekakodkar.github.io/BODtoJSON/"
+Homepage = "https://thekakodkar.github.io/BODtoJSON/"
+Repository = "https://github.com/thekakodkar/BODtoJSON"
+Documentation = "https://thekakodkar.github.io/BODtoJSON/"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.xml"]
+
+# Include non-package files in sdist
+[tool.setuptools]
+include-package-data = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v -p no:cacheprovider --cov=BODtoJSON --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["src/BODtoJSON"]
+branch = false
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true

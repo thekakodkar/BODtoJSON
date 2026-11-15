@@ -1,17 +1,17 @@
-# BODtoJSON v2.3.0
+# BODtoJSON v2.3.1
 
-**BODtoJSON** is a zero-dependency, enterprise-grade Python data liquidity engine designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON, streaming NDJSON, and declarative target schemas.
+**BODtoJSON** is a safe, enterprise-grade Python data liquidity engine designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON, streaming NDJSON, and declarative target schemas.
 
 <p>
 <a href="https://thekakodkar.github.io/BODtoJSON/"> BODtoJSON Library Documentation </a>
 </p>
 <center><img width="769" height="336" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" /></center>
 
-v2.3.0 establishes a zero-dependency core engine, introduces native single-pass ElementTree traversal, adds declarative schema projection (`project()` / `to_records()`) for Infor ION Scripting, and delivers a dual-pipeline streaming standard for Data Lakehouses and Vector Databases.
+v2.3.1 establishes a safe core engine, introduces native single-pass ElementTree traversal, adds declarative schema projection (`project()` / `to_records()`) for Infor ION Scripting, and delivers a dual-pipeline streaming standard for Data Lakehouses and Vector Databases.
 
-## 🚀 What’s New in v2.3.0 (vs. v1.0.0)
+## 🚀 What’s New in v2.3.1 (vs. v1.0.0)
 
-* **Zero-Dependency Core Engine:** Removed `xmltodict` in favor of a single-pass recursive traversal built purely on Python’s native `xml.etree.ElementTree`. Eliminates external supply-chain risks, shrinks deployment footprints for air-gapped or Infor ION environments, and halves intermediate memory allocations.
+* **Safe Core Engine:** Switched to `defusedxml` for secure XML parsing (rejects entity expansion and XXE) while retaining single-pass ElementTree traversal.
 
 * **Infor ION Scripting Helpers (`to_records` & `project`):** Eliminates boilerplate XML namespace parsing, `json.loads()` line-splitting loops, and manual boolean coercion in ION scripts. Captures `ApplicationArea` and `DataArea/<Verb>` header metadata automatically (`include_header=True`) and maps records directly into target REST/API JSON schemas.
 
@@ -25,9 +25,9 @@ v2.3.0 establishes a zero-dependency core engine, introduces native single-pass 
 
 ## 📈 Architectural Comparison
 
-| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.3.0)** | 
+| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.3.1)** | 
 | ----- | ----- | ----- | 
-| **Core Dependencies** | Relied on `xmltodict` | **Zero External Dependencies (100% Python Stdlib)** | 
+| **Core Dependencies** | Relied on `xmltodict` | **defusedxml for secure XML parsing** | 
 | **Memory & Speed** | Double-pass XML $\rightarrow$ Dict $\rightarrow$ Flat Dict | **Single-pass ElementTree traversal (\~50% lower memory)** | 
 | **Data Formats** | Standard Structured JSON string | **Standard JSON, Strict NDJSON, Native Dicts & Projected Schemas** | 
 | **Infor ION Scripting** | Manual XML + JSON loop boilerplate | **Declarative `project()` with automatic header context** | 
@@ -58,8 +58,8 @@ pip install "BODtoJSON[api]"
 BODtoJSON/
 ├── src/
 │   └── BODtoJSON/
-│       ├── __init__.py      # Package version (2.3.0) & API exports
-│       ├── mapper.py        # Zero-Dependency Dual-Pipeline & Projection Engine
+│       ├── __init__.py      # Package version (2.3.1) & API exports
+│       ├── mapper.py        # Safe Dual-Pipeline & Projection Engine
 │       └── api.py           # Optional FastAPI Microservice Ingestion Layer
 ├── tests/
 │   ├── data/                # Raw OAGIS XML Test Datasets (.xml)
@@ -180,8 +180,17 @@ Open `http://127.0.0.1:8000/docs` to test `/convert/ndjson`, `/convert/json`, an
 
 ## 🤝 Commercial Value
 
-By normalizing complex ERP structures into zero-dependency, flat JSON, streaming NDJSON, and projected API payloads, **BODtoJSON v2.3.0** eliminates third-party library bloat and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
+By normalizing complex ERP structures into safe, flat JSON, streaming NDJSON, and projected API payloads, **BODtoJSON v2.3.1** eliminates third-party library bloat and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
 
 **Author:** Niraj Kakodkar
 
 **License:** MIT
+## Known Limitations
+
+- Flattening is lossy and one-way. There is no JSON → BOD reverse mapping.
+- `to_json()` returns only the **first** noun under `DataArea`. Use `to_records()` or `to_ndjson()` to get all nouns.
+- The optional FastAPI extra is unauthenticated. Deploy it only on a trusted network or behind your own authentication/authorization.
+- Secure XML parsing is provided by `defusedxml` (core dependency). Do not disable it.
+- Mixed content (text + child elements) preserves the direct text as `_#text` where present; tail text after children is not specially handled beyond ElementTree defaults.
+- Empty elements flatten to JSON `null`.
+
