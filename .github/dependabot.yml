@@ -1,10 +1,11 @@
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
+  # Keep CI actions current. Runtime and optional-extra floors in pyproject.toml are
+  # kept deliberately low for library compatibility, so pip is not tracked here.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      github-actions:
+        patterns: ["*"]
