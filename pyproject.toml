@@ -32,7 +32,7 @@ classifiers = [
 [project.optional-dependencies]
 api = [
     "fastapi>=0.100.0",
-    "uvicorn>=0.20.0",
+    "uvicorn>=0.54.0",
 ]
 dev = [
     "pytest>=7.0",
