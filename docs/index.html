@@ -28,6 +28,7 @@
             --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
             --sidebar-width: 290px;
             --sidebar-collapsed: 76px;
+            --mobile-header-height: 60px;
         }
 
         * {
@@ -38,6 +39,7 @@
 
         html {
             scroll-behavior: smooth;
+            overflow-x: hidden;
         }
 
         body {
@@ -47,7 +49,72 @@
             line-height: 1.65;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* Mobile Top Bar (Hidden on Desktop) */
+        .mobile-topbar {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--mobile-header-height);
+            background: #0b1120;
+            color: #ffffff;
+            padding: 0 1.15rem;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 90;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .mobile-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mobile-menu-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .mobile-menu-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Mobile Backdrop Overlay */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(2px);
+            z-index: 95;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .sidebar-backdrop.active {
+            display: block;
+            opacity: 1;
         }
 
         /* Sidebar Navigation */
@@ -60,13 +127,14 @@
             top: 0;
             left: 0;
             height: 100vh;
+            height: 100dvh;
             overflow-y: auto;
             overflow-x: hidden;
             border-right: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100;
         }
 
@@ -169,6 +237,29 @@
             transform: rotate(180deg);
         }
 
+        .mobile-close-btn {
+            display: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .mobile-close-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         .nav-group {
             margin-bottom: 1.25rem;
         }
@@ -199,7 +290,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.5rem 0.75rem;
+            padding: 0.55rem 0.75rem;
             border-radius: 8px;
             transition: all 0.15s ease;
             white-space: nowrap;
@@ -242,7 +333,7 @@
             text-decoration: none;
             font-size: 0.84rem;
             font-weight: 500;
-            padding: 0.5rem 0.75rem;
+            padding: 0.55rem 0.75rem;
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.07);
@@ -274,6 +365,7 @@
             padding: 3rem 4rem;
             max-width: calc(100% - var(--sidebar-width));
             width: 100%;
+            min-width: 0;
             transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -285,6 +377,8 @@
         .content-container {
             max-width: 1060px;
             margin: 0 auto;
+            width: 100%;
+            min-width: 0;
         }
 
         header.hero {
@@ -333,8 +427,9 @@
         .hero-btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
-            padding: 0.55rem 1rem;
+            padding: 0.6rem 1.05rem;
             border-radius: 8px;
             font-size: 0.86rem;
             font-weight: 600;
@@ -368,21 +463,22 @@
             width: 16px;
             height: 16px;
             fill: currentColor;
+            flex-shrink: 0;
         }
 
         .pill-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.55rem;
+            gap: 0.5rem;
             margin-top: 1.35rem;
         }
 
         .pill {
             background: var(--accent-soft);
             color: var(--accent);
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 600;
-            padding: 0.3rem 0.75rem;
+            padding: 0.28rem 0.72rem;
             border-radius: 999px;
             border: 1px solid var(--accent-border);
         }
@@ -390,6 +486,7 @@
         section {
             margin-bottom: 3.25rem;
             scroll-margin-top: 2rem;
+            min-width: 0;
         }
 
         h2 {
@@ -407,17 +504,23 @@
             color: var(--text-secondary);
         }
 
-        /* Tables */
+        /* Responsive Table Wrapper */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            margin: 1.25rem 0;
+            box-shadow: var(--shadow-sm);
+        }
+
         table {
             width: 100%;
+            min-width: 620px;
             border-collapse: collapse;
-            background: var(--bg-surface);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            margin: 1.25rem 0;
             font-size: 0.91rem;
-            box-shadow: var(--shadow-sm);
         }
 
         th, td {
@@ -431,9 +534,10 @@
             background-color: #f8fafc;
             font-weight: 700;
             color: #0f172a;
-            font-size: 0.84rem;
+            font-size: 0.82rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
+            white-space: nowrap;
         }
 
         tr:hover td {
@@ -447,11 +551,12 @@
         code.inline {
             background: #f1f5f9;
             color: #0f172a;
-            padding: 0.16rem 0.42rem;
+            padding: 0.15rem 0.4rem;
             border-radius: 5px;
             font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-            font-size: 0.84em;
+            font-size: 0.83em;
             border: 1px solid #e2e8f0;
+            word-break: break-word;
         }
 
         /* Code Cards */
@@ -463,6 +568,7 @@
             margin-bottom: 1.75rem;
             box-shadow: var(--shadow-sm);
             transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            min-width: 0;
         }
 
         .use-case-card:hover {
@@ -473,7 +579,7 @@
         .card-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 0.75rem;
             flex-wrap: wrap;
             gap: 0.5rem;
@@ -484,6 +590,7 @@
             font-weight: 700;
             color: #0f172a;
             letter-spacing: -0.01em;
+            line-height: 1.35;
         }
 
         .tag {
@@ -493,6 +600,7 @@
             border-radius: 999px;
             background: #e0e7ff;
             color: #3730a3;
+            white-space: nowrap;
         }
 
         .tag.green { background: #d1fae5; color: #065f46; }
@@ -502,33 +610,36 @@
         .code-wrapper {
             position: relative;
             margin-top: 0.9rem;
+            max-width: 100%;
         }
 
         pre {
             background-color: var(--bg-code);
             color: #f8fafc;
-            padding: 1.25rem 1.35rem;
+            padding: 2.35rem 1.25rem 1.25rem;
             border-radius: 10px;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-            font-size: 0.85rem;
+            font-size: 0.84rem;
             line-height: 1.6;
             border: 1px solid #1e293b;
         }
 
         .copy-btn {
             position: absolute;
-            top: 0.65rem;
-            right: 0.65rem;
-            background: rgba(255, 255, 255, 0.1);
+            top: 0.55rem;
+            right: 0.55rem;
+            background: rgba(255, 255, 255, 0.12);
             color: #e2e8f0;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 6px;
             padding: 0.28rem 0.7rem;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.15s ease;
+            z-index: 2;
         }
 
         .copy-btn:hover {
@@ -551,6 +662,10 @@
             grid-template-columns: 1fr 1fr;
             gap: 1.25rem;
             margin-top: 1rem;
+        }
+
+        .pg-col {
+            min-width: 0;
         }
 
         textarea {
@@ -584,7 +699,7 @@
             background: var(--accent);
             color: #fff;
             border: none;
-            padding: 0.6rem 1.1rem;
+            padding: 0.65rem 1.15rem;
             border-radius: 8px;
             font-size: 0.86rem;
             font-weight: 600;
@@ -621,6 +736,7 @@
             display: flex;
             gap: 1.25rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .footer-links a {
@@ -634,27 +750,155 @@
             color: var(--accent);
         }
 
+        /* =========================================
+           TABLET & MOBILE RESPONSIVE BREAKPOINTS
+           ========================================= */
         @media (max-width: 960px) {
-            aside {
-                width: var(--sidebar-collapsed);
-                padding: 1.5rem 0.65rem;
+            .mobile-topbar {
+                display: flex;
             }
-            .brand-title-wrap, .brand-sub, .nav-title, .nav-label, .ext-label {
+
+            /* Convert sidebar into full slide-over drawer */
+            aside {
+                width: 280px !important;
+                padding: 1.35rem 1rem !important;
+                transform: translateX(-100%);
+                box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+            }
+
+            body.mobile-nav-open aside {
+                transform: translateX(0);
+            }
+
+            /* Restore full labels inside mobile drawer even if desktop was collapsed */
+            body.sidebar-collapsed .brand-title-wrap,
+            body.sidebar-collapsed .brand-sub,
+            body.sidebar-collapsed .nav-title,
+            body.sidebar-collapsed .nav-label,
+            body.sidebar-collapsed .ext-label {
+                display: flex !important;
+            }
+            body.sidebar-collapsed .brand-sub,
+            body.sidebar-collapsed .nav-title {
+                display: block !important;
+            }
+            body.sidebar-collapsed .brand-top {
+                justify-content: space-between !important;
+            }
+            body.sidebar-collapsed aside a.nav-link,
+            body.sidebar-collapsed .ext-link {
+                justify-content: flex-start !important;
+                padding: 0.6rem 0.75rem !important;
+            }
+
+            .toggle-btn {
                 display: none;
             }
-            .brand-top { justify-content: center; }
-            aside a.nav-link { justify-content: center; padding: 0.6rem 0; }
-            .ext-link { justify-content: center; padding: 0.55rem 0; }
-            main {
-                margin-left: var(--sidebar-collapsed);
-                max-width: calc(100% - var(--sidebar-collapsed));
-                padding: 1.75rem;
+
+            .mobile-close-btn {
+                display: inline-flex;
             }
-            .pg-grid { grid-template-columns: 1fr; }
+
+            main,
+            body.sidebar-collapsed main {
+                margin-left: 0;
+                max-width: 100%;
+                padding: calc(var(--mobile-header-height) + 1.5rem) 1.25rem 2.5rem;
+            }
+
+            section {
+                scroll-margin-top: calc(var(--mobile-header-height) + 1rem);
+                margin-bottom: 2.5rem;
+            }
+
+            .pg-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            header.hero {
+                padding: 1.5rem 1.25rem;
+                border-radius: 14px;
+                margin-bottom: 2rem;
+            }
+
+            header.hero h1 {
+                font-size: 1.55rem;
+            }
+
+            header.hero p {
+                font-size: 0.96rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .hero-btn {
+                width: 100%;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .use-case-card,
+            .playground {
+                padding: 1.25rem 1.1rem;
+                border-radius: 12px;
+            }
+
+            .card-title {
+                font-size: 1.05rem;
+            }
+
+            pre {
+                font-size: 0.79rem;
+                padding: 2.3rem 0.95rem 1rem;
+            }
+
+            /* 16px prevents iOS Safari from auto-zooming on focus */
+            textarea {
+                font-size: 16px;
+                height: 190px;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+
+            button.action {
+                width: 100%;
+                text-align: center;
+            }
+
+            footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
+
+<!-- Mobile Header -->
+<div class="mobile-topbar">
+    <div class="mobile-brand">
+        <span class="brand" style="font-size: 1.2rem;">BODtoJSON</span>
+        <span class="badge-version">v2.4.0</span>
+    </div>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open Navigation Menu">
+        <svg viewBox="0 0 24 24">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+</div>
+
+<!-- Backdrop Overlay for Mobile Drawer -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
 <aside id="sidebar">
     <div>
@@ -666,6 +910,12 @@
                 </div>
                 <button class="toggle-btn" id="sidebarToggle" title="Toggle Sidebar" aria-label="Toggle Sidebar">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button class="mobile-close-btn" id="mobileCloseBtn" title="Close Menu" aria-label="Close Navigation Menu">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                 </button>
             </div>
             <div class="brand-sub">Safe OAGIS BOD to Flattened JSON Engine</div>
@@ -818,48 +1068,50 @@
             <h2>Which Method Should I Use?</h2>
             <p>Pick the function that matches your destination system. All functions automatically strip XML namespaces, handle UTF-8 BOM characters, and remove the administrative OAGIS Verb (<code class="inline">Sync</code>, <code class="inline">Process</code>, <code class="inline">Show</code>, etc.).</p>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Your Use Case</th>
-                        <th>Function to Call</th>
-                        <th>Return Type</th>
-                        <th>Best For</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Map BOD directly to a target REST API schema</strong></td>
-                        <td><code class="inline">project(xml, verb, schema)</code></td>
-                        <td><code class="inline">list[dict]</code></td>
-                        <td>Infor ION Scripting, third-party SaaS connectors</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Work with Python dicts &amp; header metadata</strong></td>
-                        <td><code class="inline">to_records(xml, verb, include_header=True)</code></td>
-                        <td><code class="inline">list[dict]</code></td>
-                        <td>Custom business rules, conditional logic in Python</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Stream records to Snowflake, Databricks, or Vector DB</strong></td>
-                        <td><code class="inline">to_ndjson(xml, verb)</code></td>
-                        <td><code class="inline">str</code> (lines)</td>
-                        <td>Data Lakehouses, Kafka/Event Hubs, RAG pipelines</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Get a single flat JSON string</strong></td>
-                        <td><code class="inline">to_json(xml, verb)</code></td>
-                        <td><code class="inline">str</code> (JSON)</td>
-                        <td>Document stores, webhook payloads, logging</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Expose conversion as an HTTP microservice</strong></td>
-                        <td><code class="inline">uvicorn BODtoJSON.api:app</code></td>
-                        <td>HTTP Response</td>
-                        <td>Containerized integration hubs, API gateways</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Your Use Case</th>
+                            <th>Function to Call</th>
+                            <th>Return Type</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Map BOD directly to a target REST API schema</strong></td>
+                            <td><code class="inline">project(xml, verb, schema)</code></td>
+                            <td><code class="inline">list[dict]</code></td>
+                            <td>Infor ION Scripting, third-party SaaS connectors</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Work with Python dicts &amp; header metadata</strong></td>
+                            <td><code class="inline">to_records(xml, verb, include_header=True)</code></td>
+                            <td><code class="inline">list[dict]</code></td>
+                            <td>Custom business rules, conditional logic in Python</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stream records to Snowflake, Databricks, or Vector DB</strong></td>
+                            <td><code class="inline">to_ndjson(xml, verb)</code></td>
+                            <td><code class="inline">str</code> (lines)</td>
+                            <td>Data Lakehouses, Kafka/Event Hubs, RAG pipelines</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Get a single flat JSON string</strong></td>
+                            <td><code class="inline">to_json(xml, verb)</code></td>
+                            <td><code class="inline">str</code> (JSON)</td>
+                            <td>Document stores, webhook payloads, logging</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Expose conversion as an HTTP microservice</strong></td>
+                            <td><code class="inline">uvicorn BODtoJSON.api:app</code></td>
+                            <td>HTTP Response</td>
+                            <td>Containerized integration hubs, API gateways</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <!-- INSTALLATION -->
@@ -885,37 +1137,39 @@ pip install "BODtoJSON[api]==2.4.0"</pre>
         <section id="key-rules">
             <h2>How XML Keys Are Flattened</h2>
             <p>Every nested XML tag is joined with an underscore (<code class="inline">_</code>) starting from the Noun root inside <code class="inline">DataArea</code>:</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>OAGIS XML Pattern</th>
-                        <th>Flattened Key</th>
-                        <th>Example Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Simple element: <code class="inline">&lt;DisplayID&gt;PSU000049&lt;/DisplayID&gt;</code></td>
-                        <td><code class="inline">PurchaseOrder_PurchaseOrderHeader_DisplayID</code></td>
-                        <td><code class="inline">"PSU000049"</code></td>
-                    </tr>
-                    <tr>
-                        <td>Element with attributes: <code class="inline">&lt;ID accountingEntity="3555"&gt;PSU000049&lt;/ID&gt;</code></td>
-                        <td><code class="inline">..._DocumentID_ID_#text</code><br><code class="inline">..._DocumentID_ID_@accountingEntity</code></td>
-                        <td><code class="inline">"PSU000049"</code><br><code class="inline">"3555"</code></td>
-                    </tr>
-                    <tr>
-                        <td>Repeating sibling tags: multiple <code class="inline">&lt;PurchaseOrderLine&gt;</code></td>
-                        <td><code class="inline">..._PurchaseOrderLine_0_LineNumber</code><br><code class="inline">..._PurchaseOrderLine_1_LineNumber</code></td>
-                        <td><code class="inline">"10"</code><br><code class="inline">"20"</code></td>
-                    </tr>
-                    <tr>
-                        <td>Header context (<code class="inline">include_header=True</code>)</td>
-                        <td><code class="inline">Sync_AccountingEntityID</code><br><code class="inline">ApplicationArea_Sender_LogicalID</code></td>
-                        <td><code class="inline">"3555"</code><br><code class="inline">"lid://infor.ln..."</code></td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>OAGIS XML Pattern</th>
+                            <th>Flattened Key</th>
+                            <th>Example Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Simple element: <code class="inline">&lt;DisplayID&gt;PSU000049&lt;/DisplayID&gt;</code></td>
+                            <td><code class="inline">PurchaseOrder_PurchaseOrderHeader_DisplayID</code></td>
+                            <td><code class="inline">"PSU000049"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Element with attributes: <code class="inline">&lt;ID accountingEntity="3555"&gt;PSU000049&lt;/ID&gt;</code></td>
+                            <td><code class="inline">..._DocumentID_ID_#text</code><br><code class="inline">..._DocumentID_ID_@accountingEntity</code></td>
+                            <td><code class="inline">"PSU000049"</code><br><code class="inline">"3555"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Repeating sibling tags: multiple <code class="inline">&lt;PurchaseOrderLine&gt;</code></td>
+                            <td><code class="inline">..._PurchaseOrderLine_0_LineNumber</code><br><code class="inline">..._PurchaseOrderLine_1_LineNumber</code></td>
+                            <td><code class="inline">"10"</code><br><code class="inline">"20"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Header context (<code class="inline">include_header=True</code>)</td>
+                            <td><code class="inline">Sync_AccountingEntityID</code><br><code class="inline">ApplicationArea_Sender_LogicalID</code></td>
+                            <td><code class="inline">"3555"</code><br><code class="inline">"lid://infor.ln..."</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <!-- USE CASES -->
@@ -980,14 +1234,12 @@ for rec in records:
                     <span class="card-title">Use Case 3: Data Lakehouse &amp; Vector DB Streaming (NDJSON)</span>
                     <span class="tag">High-Throughput ETL</span>
                 </div>
-                <p>Generates compact, zero-whitespace, newline-delimited JSON (<code class="inline">
-</code> terminated). Ideal for Snowflake Snowpipe, Databricks Auto Loader, AWS S3/Glue, and RAG embedding pipelines.</p>
+                <p>Generates compact, zero-whitespace, newline-delimited JSON (<code class="inline">\n</code> terminated). Ideal for Snowflake Snowpipe, Databricks Auto Loader, AWS S3/Glue, and RAG embedding pipelines.</p>
                 <div class="code-wrapper">
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre>from BODtoJSON import to_ndjson
 
-# Returns one compact JSON object per line, terminated with 
-
+# Returns one compact JSON object per line, terminated with \n
 ndjson_stream = to_ndjson(xml_payload, verb="Sync")
 
 # Write directly to S3 / Data Lake staging file
@@ -1091,61 +1343,63 @@ result = convert(xml_payload, verb="Sync")</pre>
         <!-- API REFERENCE -->
         <section id="api-reference">
             <h2>Complete API Reference</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Signature</th>
-                        <th>Parameters</th>
-                        <th>Returns</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code class="inline">project(bod_xml, verb, schema, include_header=True, coerce_booleans=True)</code></td>
-                        <td>
-                            <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
-                            <strong>verb</strong> (str): OAGIS Verb to strip (e.g. <code class="inline">"Sync"</code>).<br>
-                            <strong>schema</strong> (dict): Target field mapping rules.<br>
-                            <strong>include_header</strong> (bool): Include <code class="inline">ApplicationArea</code> &amp; Verb fields.<br>
-                            <strong>coerce_booleans</strong> (bool): Convert <code class="inline">"true"</code>/<code class="inline">"false"</code> strings to <code class="inline">bool</code>.
-                        </td>
-                        <td><code class="inline">List[Dict[str, Any]]</code></td>
-                    </tr>
-                    <tr>
-                        <td><code class="inline">to_records(bod_xml, verb, include_header=False)</code></td>
-                        <td>
-                            <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
-                            <strong>verb</strong> (str): OAGIS Verb to strip.<br>
-                            <strong>include_header</strong> (bool): Merge header metadata into each record.
-                        </td>
-                        <td><code class="inline">List[Dict[str, Any]]</code></td>
-                    </tr>
-                    <tr>
-                        <td><code class="inline">to_ndjson(bod_xml, verb)</code></td>
-                        <td>
-                            <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
-                            <strong>verb</strong> (str): OAGIS Verb to strip.
-                        </td>
-                        <td><code class="inline">str</code> (Newline-delimited compact JSON)</td>
-                    </tr>
-                    <tr>
-                        <td><code class="inline">to_json(bod_xml, verb)</code></td>
-                        <td>
-                            <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
-                            <strong>verb</strong> (str): OAGIS Verb to strip.
-                        </td>
-                        <td><code class="inline">str</code> (Flat JSON string)</td>
-                    </tr>
-                    <tr>
-                        <td><code class="inline">BODConverter(pnode='DataArea', separator='_')</code></td>
-                        <td>
-                            <strong>pnode</strong> (str): Container tag holding Verb &amp; Noun.<br>
-                            <strong>separator</strong> (str): Delimiter between nested tag names.
-                        </td>
-                        <td><code class="inline">BODConverter</code> instance</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Signature</th>
+                            <th>Parameters</th>
+                            <th>Returns</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">project(bod_xml, verb, schema, include_header=True, coerce_booleans=True)</code></td>
+                            <td>
+                                <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
+                                <strong>verb</strong> (str): OAGIS Verb to strip (e.g. <code class="inline">"Sync"</code>).<br>
+                                <strong>schema</strong> (dict): Target field mapping rules.<br>
+                                <strong>include_header</strong> (bool): Include <code class="inline">ApplicationArea</code> &amp; Verb fields.<br>
+                                <strong>coerce_booleans</strong> (bool): Convert <code class="inline">"true"</code>/<code class="inline">"false"</code> strings to <code class="inline">bool</code>.
+                            </td>
+                            <td><code class="inline">List[Dict[str, Any]]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">to_records(bod_xml, verb, include_header=False)</code></td>
+                            <td>
+                                <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
+                                <strong>verb</strong> (str): OAGIS Verb to strip.<br>
+                                <strong>include_header</strong> (bool): Merge header metadata into each record.
+                            </td>
+                            <td><code class="inline">List[Dict[str, Any]]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">to_ndjson(bod_xml, verb)</code></td>
+                            <td>
+                                <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
+                                <strong>verb</strong> (str): OAGIS Verb to strip.
+                            </td>
+                            <td><code class="inline">str</code> (Newline-delimited compact JSON)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">to_json(bod_xml, verb)</code></td>
+                            <td>
+                                <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
+                                <strong>verb</strong> (str): OAGIS Verb to strip.
+                            </td>
+                            <td><code class="inline">str</code> (Flat JSON string)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">BODConverter(pnode='DataArea', separator='_')</code></td>
+                            <td>
+                                <strong>pnode</strong> (str): Container tag holding Verb &amp; Noun.<br>
+                                <strong>separator</strong> (str): Delimiter between nested tag names.
+                            </td>
+                            <td><code class="inline">BODConverter</code> instance</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <!-- INTERACTIVE BROWSER SIMULATOR -->
@@ -1154,8 +1408,8 @@ result = convert(xml_payload, verb="Sync")</pre>
             <div class="playground">
                 <p>Test how your OAGIS XML flattens directly in the browser before deploying to Infor ION.</p>
                 <div class="pg-grid">
-                    <div>
-                        <label><strong>Input OAGIS XML</strong></label>
+                    <div class="pg-col">
+                        <label for="xmlInput"><strong>Input OAGIS XML</strong></label>
                         <textarea id="xmlInput"><SyncPurchaseOrder releaseID="9.2">
   <ApplicationArea>
     <Sender><LogicalID>lid://infor.ln.ln01/3555</LogicalID></Sender>
@@ -1177,8 +1431,8 @@ result = convert(xml_payload, verb="Sync")</pre>
   </DataArea>
 </SyncPurchaseOrder></textarea>
                     </div>
-                    <div>
-                        <label><strong>Flattened Output Preview</strong></label>
+                    <div class="pg-col">
+                        <label for="jsonOutput"><strong>Flattened Output Preview</strong></label>
                         <textarea id="jsonOutput" readonly></textarea>
                     </div>
                 </div>
@@ -1202,7 +1456,7 @@ result = convert(xml_payload, verb="Sync")</pre>
 </main>
 
 <script>
-    // Sidebar Toggle Logic with LocalStorage Persistence
+    // Desktop Sidebar Collapse with LocalStorage Persistence
     const sidebarToggle = document.getElementById("sidebarToggle");
     if (localStorage.getItem("bodtojson_sidebar_collapsed") === "true") {
         document.body.classList.add("sidebar-collapsed");
@@ -1214,6 +1468,35 @@ result = convert(xml_payload, verb="Sync")</pre>
             "bodtojson_sidebar_collapsed",
             document.body.classList.contains("sidebar-collapsed")
         );
+    });
+
+    // Mobile Navigation Drawer Logic
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileCloseBtn = document.getElementById("mobileCloseBtn");
+    const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+    const navLinks = document.querySelectorAll("aside a.nav-link");
+
+    function openMobileNav() {
+        document.body.classList.add("mobile-nav-open");
+        sidebarBackdrop.classList.add("active");
+    }
+
+    function closeMobileNav() {
+        document.body.classList.remove("mobile-nav-open");
+        sidebarBackdrop.classList.remove("active");
+    }
+
+    mobileMenuBtn.addEventListener("click", openMobileNav);
+    mobileCloseBtn.addEventListener("click", closeMobileNav);
+    sidebarBackdrop.addEventListener("click", closeMobileNav);
+
+    // Close mobile drawer automatically when clicking an internal section link
+    navLinks.forEach(link => {
+        link.addEventListener("click", () => {
+            if (window.innerWidth <= 960) {
+                closeMobileNav();
+            }
+        });
     });
 
     function copyCode(btn) {
