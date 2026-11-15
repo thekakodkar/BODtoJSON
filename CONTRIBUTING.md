@@ -20,6 +20,7 @@ API tests are skipped automatically if FastAPI/httpx are not installed.
 ## Guidelines
 
 - Keep public API backward compatible.
+- The core library must stay at zero third-party runtime dependencies (no `defusedxml`, no `ET.fromstring` fallback).
 - Do not publish or tag without explicit owner approval.
 - Prefer focused commits.
 - Run the full test suite before opening a PR.

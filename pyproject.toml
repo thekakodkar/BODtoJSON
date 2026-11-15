@@ -1,24 +1,22 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "BODtoJSON"
-version = "2.3.1"
+version = "2.4.0"
 authors = [
   { name = "Niraj Kakodkar" },
 ]
-description = "Safe OAGIS BOD to Flattened JSON, NDJSON, and Schema Projection engine (defusedxml)"
+description = "Zero-dependency OAGIS BOD to Flattened JSON, NDJSON, and Schema Projection engine"
 readme = "README.md"
 requires-python = ">=3.8"
-license = { text = "MIT" }
-dependencies = [
-    "defusedxml>=0.7.1",
-]
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = []
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -27,6 +25,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup :: XML",
 ]
 
 [project.optional-dependencies]
@@ -39,20 +38,21 @@ dev = [
     "pytest-cov>=4.0",
     "httpx>=0.24.0",
     "fastapi>=0.100.0",
+    "ruff>=0.6",
+    "mypy>=1.8",
+    "build>=1.0",
+    "twine>=5.0",
 ]
 
 [project.urls]
 Homepage = "https://thekakodkar.github.io/BODtoJSON/"
 Repository = "https://github.com/thekakodkar/BODtoJSON"
 Documentation = "https://thekakodkar.github.io/BODtoJSON/"
+Changelog = "https://github.com/thekakodkar/BODtoJSON/blob/master/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.package-data]
-"*" = ["*.xml"]
-
-# Include non-package files in sdist
 [tool.setuptools]
 include-package-data = true
 
@@ -63,7 +63,36 @@ addopts = "-v -p no:cacheprovider --cov=BODtoJSON --cov-report=term-missing"
 [tool.coverage.run]
 source = ["src/BODtoJSON"]
 branch = false
+omit = []
 
 [tool.coverage.report]
-fail_under = 80
+fail_under = 90
 show_missing = true
+
+[tool.ruff]
+target-version = "py38"
+line-length = 100
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "BLE", "UP", "S"]
+ignore = [
+    "S101",    # assert is expected in tests
+    "UP006",   # keep typing.Dict/List for the public 3.8+ type hints
+    "UP007",   # keep typing.Union for the public 3.8+ type hints
+    "UP035",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/**" = ["T201", "S", "E501", "BLE001", "I001"]
+"tests/**" = ["S101", "S105", "S106", "S108", "E501"]
+"src/BODtoJSON/api.py" = ["BLE001", "E501"]  # last-resort HTTP 500; long FastAPI description
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+pretty = true
+show_error_codes = true
+packages = ["BODtoJSON"]
+mypy_path = "src"
+explicit_package_bases = true

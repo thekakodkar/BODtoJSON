@@ -1,0 +1,16 @@
+{
+  "to_json": {
+    "PO_ID": "C"
+  },
+  "to_ndjson": [
+    {
+      "PO_ID": "C"
+    }
+  ],
+  "to_records_header": [
+    {
+      "PO_ID": "C",
+      "Sync": null
+    }
+  ]
+}

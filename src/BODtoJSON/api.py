@@ -1,19 +1,47 @@
 import json
-from typing import Dict, Any
+from typing import Any, Dict
 
-from fastapi import FastAPI, Body, Response, Request
+from fastapi import Body, FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from BODtoJSON import to_json, to_ndjson, project, convert, __version__, BODParseError, BODStructureError
+from BODtoJSON import (
+    BODParseError,
+    BODStructureError,
+    __version__,
+    convert,
+    project,
+    to_json,
+    to_ndjson,
+)
 
 MAX_BODY_SIZE = 10 * 1024 * 1024  # 10 MiB, aligned with library default
 
 app = FastAPI(
     title="BODtoJSON API",
     version=__version__,
-    description="Safe OAGIS BOD to Flattened JSON engine (defusedxml). Unauthenticated — deploy behind your own auth.",
+    description="Safe zero-dependency OAGIS BOD to Flattened JSON engine. Unauthenticated — deploy behind your own auth or a reverse proxy.",
 )
+
+
+@app.middleware("http")
+async def limit_request_body_size(request: Request, call_next):
+    """Reject oversized POST bodies on every route, including JSON wrappers.
+
+    The body is still read into memory once (Starlette caches it). Operators
+    should also enforce a limit at the reverse proxy.
+    """
+    if request.method in {"POST", "PUT", "PATCH"}:
+        body = await request.body()
+        if len(body) > MAX_BODY_SIZE:
+            return JSONResponse(
+                {
+                    "status": "error",
+                    "message": f"Request body exceeds {MAX_BODY_SIZE} bytes.",
+                },
+                status_code=413,
+            )
+    return await call_next(request)
 
 
 class BODRequest(BaseModel):
@@ -26,17 +54,6 @@ class ProjectRequest(BaseModel):
     verb: str = "Sync"
     schema_map: Dict[str, Any]
     include_header: bool = True
-
-
-async def _check_body_size(request: Request):
-    """Simple size guard for raw bodies."""
-    body = await request.body()
-    if len(body) > MAX_BODY_SIZE:
-        return JSONResponse(
-            {"status": "error", "message": f"Request body exceeds {MAX_BODY_SIZE} bytes."},
-            status_code=413,
-        )
-    return None
 
 
 @app.get("/")
@@ -66,13 +83,9 @@ def _handle_library_result(result_str: str, media_type: str = "application/json"
 
 @app.post("/convert/ndjson")
 async def convert_to_ndjson_stream(
-    request: Request,
     xml_data: str = Body(..., media_type="text/plain"),
     verb: str = "Sync",
 ):
-    size_err = await _check_body_size(request)
-    if size_err:
-        return size_err
     try:
         result_str = to_ndjson(xml_data, verb, raise_on_error=True)
         return Response(content=result_str, media_type="application/x-ndjson")
@@ -84,13 +97,9 @@ async def convert_to_ndjson_stream(
 
 @app.post("/convert/json")
 async def convert_to_standard_json(
-    request: Request,
     xml_data: str = Body(..., media_type="text/plain"),
     verb: str = "Sync",
 ):
-    size_err = await _check_body_size(request)
-    if size_err:
-        return size_err
     try:
         result_str = to_json(xml_data, verb, raise_on_error=True)
         return Response(content=result_str, media_type="application/json")
@@ -114,13 +123,9 @@ async def project_bod_schema(req: ProjectRequest):
 # Legacy endpoints
 @app.post("/convert")
 async def legacy_convert_raw_xml(
-    request: Request,
     xml_data: str = Body(..., media_type="text/plain"),
     verb: str = "Sync",
 ):
-    size_err = await _check_body_size(request)
-    if size_err:
-        return size_err
     try:
         result_str = convert(xml_data, verb)
         return _handle_library_result(result_str)

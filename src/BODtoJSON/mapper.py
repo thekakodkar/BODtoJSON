@@ -1,16 +1,13 @@
 import json
 import warnings
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional, Union
+from xml.etree.ElementTree import ParseError
 
-try:
-    from defusedxml.ElementTree import fromstring as safe_fromstring
-except ImportError:
-    # Fallback only for environments without the dep (should not happen in normal use)
-    from xml.etree.ElementTree import fromstring as safe_fromstring
+from .safe_xml import SafeXMLError, parse_xml
 
 
 class BODParseError(Exception):
-    """Raised for malformed XML, entity expansion rejection, or oversize documents."""
+    """Raised for malformed XML, entity/DTD rejection, oversize, or over-deep documents."""
 
 
 class BODStructureError(ValueError):
@@ -21,59 +18,99 @@ class BODConverter:
     """Safe, namespace-aware OAGIS BOD to flattened JSON converter."""
 
     DEFAULT_MAX_SIZE = 10 * 1024 * 1024  # 10 MiB
+    DEFAULT_MAX_DEPTH = 256
 
     def __init__(
         self,
         pnode: str = "DataArea",
         separator: str = "_",
         max_size: Optional[int] = None,
+        max_depth: Optional[int] = None,
     ):
         self.pnode = pnode
         self.separator = separator
         self.max_size = max_size if max_size is not None else self.DEFAULT_MAX_SIZE
+        self.max_depth = max_depth if max_depth is not None else self.DEFAULT_MAX_DEPTH
 
-    def _check_size(self, bod_xml: str) -> None:
-        if len(bod_xml.encode("utf-8")) > self.max_size:
+    @staticmethod
+    def _input_size(bod_xml: Union[str, bytes]) -> int:
+        if isinstance(bod_xml, (bytes, bytearray, memoryview)):
+            return len(bod_xml)
+        return len(bod_xml.encode("utf-8"))
+
+    def _check_size(self, bod_xml: Union[str, bytes]) -> None:
+        if self._input_size(bod_xml) > self.max_size:
             raise BODParseError(
                 f"Document exceeds maximum allowed size of {self.max_size} bytes."
             )
 
-    def _parse(self, bod_xml: str):
-        """Parse XML safely with defusedxml and return the root element."""
+    def _parse(self, bod_xml: Union[str, bytes]):
+        """Parse XML with the stdlib-only hardened parser and return the root."""
         self._check_size(bod_xml)
-        clean_xml = bod_xml.strip().encode("utf-8").decode("utf-8-sig")
         try:
-            return safe_fromstring(clean_xml)
-        except Exception as e:
+            return parse_xml(
+                bod_xml, max_size=self.max_size, max_depth=self.max_depth
+            )
+        except SafeXMLError as e:
+            raise BODParseError(str(e)) from e
+        except ParseError as e:
             raise BODParseError(f"Failed to parse XML: {e}") from e
 
-    def _find_local(self, elem, local_name: str):
-        """Find first element with the given local name, ignoring namespaces."""
+    @staticmethod
+    def _local_name(tag: str) -> str:
+        """Return the local part of an ElementTree tag, ignoring namespaces."""
+        return tag.split("}", 1)[-1] if "}" in tag else tag
+
+    def _find_direct_local(self, elem, local_name: str):
+        """Find the first direct child with the given local name."""
         if elem is None:
             return None
-        # ElementTree {*} wildcard is supported since Python 3.8
+        for child in list(elem):
+            if self._local_name(child.tag) == local_name:
+                return child
+        # The element itself (e.g. a document whose root is DataArea)
+        if self._local_name(elem.tag) == local_name:
+            return elem
+        return None
+
+    def _find_local(self, elem, local_name: str):
+        """Find the first element with the given local name (descendants allowed).
+
+        Used for ApplicationArea, which is a sibling of DataArea under the root.
+        Verb and DataArea lookups use _find_direct_local instead.
+        """
+        if elem is None:
+            return None
+        if self._local_name(elem.tag) == local_name:
+            return elem
         found = elem.find(f".//{{*}}{local_name}")
         if found is not None:
             return found
-        # Also check the element itself
-        tag = elem.tag
-        local = tag.split("}", 1)[-1] if "}" in tag else tag
-        if local == local_name:
-            return elem
+        for descendant in elem.iter():
+            if self._local_name(descendant.tag) == local_name:
+                return descendant
         return None
+
+    def _remove_direct_child(self, parent, child, verb: str) -> None:
+        try:
+            parent.remove(child)
+        except ValueError as e:
+            raise BODStructureError(
+                f"Verb '{verb}' is not a direct child of '{self.pnode}'."
+            ) from e
 
     def _prepare_noun_element(self, bod_xml: str, verb: str):
         """Extract the first noun under DataArea after removing the verb."""
         root = self._parse(bod_xml)
-        data_area = self._find_local(root, self.pnode)
+        data_area = self._find_direct_local(root, self.pnode)
         if data_area is None:
             raise BODStructureError(f"Target node '{self.pnode}' not found.")
 
-        verb_node = self._find_local(data_area, verb)
+        verb_node = self._find_direct_local(data_area, verb)
         if verb_node is None:
             raise BODStructureError(f"Verb '{verb}' not found under '{self.pnode}'.")
 
-        data_area.remove(verb_node)
+        self._remove_direct_child(data_area, verb_node, verb)
 
         children = list(data_area)
         if not children:
@@ -83,7 +120,7 @@ class BODConverter:
 
     def _strip_ns(self, tag: str) -> str:
         """Strips any residual {namespace} URI prefixes from ElementTree tags."""
-        return tag.split("}", 1)[-1] if "}" in tag else tag
+        return self._local_name(tag)
 
     def _flatten_element(self, elem, prefix: str = "") -> Dict[str, Any]:
         """Recursively flatten an element into a dictionary using local names."""
@@ -179,11 +216,11 @@ class BODConverter:
         Raises BODParseError or BODStructureError on failure.
         """
         root = self._parse(bod_xml)
-        data_area = self._find_local(root, self.pnode)
+        data_area = self._find_direct_local(root, self.pnode)
         if data_area is None:
             raise BODStructureError(f"Target node '{self.pnode}' not found.")
 
-        verb_node = self._find_local(data_area, verb)
+        verb_node = self._find_direct_local(data_area, verb)
         if verb_node is None:
             raise BODStructureError(f"Verb '{verb}' not found under '{self.pnode}'.")
 
@@ -191,7 +228,7 @@ class BODConverter:
             self._extract_header_context(root, verb_node) if include_header else {}
         )
 
-        data_area.remove(verb_node)
+        self._remove_direct_child(data_area, verb_node, verb)
 
         noun_nodes = list(data_area)
         if not noun_nodes:

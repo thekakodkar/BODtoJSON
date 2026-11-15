@@ -23,5 +23,30 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install -e ".[api,dev]"
+      - name: Ruff
+        run: python -m ruff check src tests scripts
+      - name: Mypy
+        run: python -m mypy src
       - name: Pytest
         run: python -m pytest -v -p no:cacheprovider --cov=BODtoJSON --cov-report=term-missing
+
+  core-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install core + pytest only
+        run: |
+          python -m pip install -U pip
+          pip install -e .
+          pip install pytest pytest-cov
+      - name: Mapper tests without extras
+        run: python -m pytest tests/test_mapper.py tests/test_safe_xml.py -v -p no:cacheprovider --cov=BODtoJSON --cov-report=term-missing
+      - name: Assert zero runtime requires
+        run: |
+          python -c "import importlib.metadata as m; req=m.requires('BODtoJSON') or []; core=[r for r in req if 'extra ==' not in r]; assert core==[], core"
+          pip show BODtoJSON

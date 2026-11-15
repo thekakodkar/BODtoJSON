@@ -1,5 +1,6 @@
 import os
 
+
 class Config:
     """Enterprise OAGIS Test Data Provider."""
     
@@ -10,6 +11,6 @@ class Config:
     def get_xml_from_file(file_path: str) -> str:
         """Utility to read actual .xml files from disk."""
         if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 return f.read().strip()
         return ""

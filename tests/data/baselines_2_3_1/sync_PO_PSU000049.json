@@ -1,0 +1,51 @@
+{
+  "to_json": {
+    "PurchaseOrder_PurchaseOrderHeader_DisplayID": "PSU000049",
+    "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_#text": "PSU000049",
+    "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@accountingEntity": "3555",
+    "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@lid": "lid://infor.ln.ln01/3555",
+    "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@location": "S_350",
+    "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@variationID": "5",
+    "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_#text": "2500",
+    "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID": "EUR",
+    "PurchaseOrder_PurchaseOrderHeader_Note_#text": "Subcontracting additions",
+    "PurchaseOrder_PurchaseOrderHeader_Note_@type": "Header"
+  },
+  "to_ndjson": [
+    {
+      "PurchaseOrder_PurchaseOrderHeader_DisplayID": "PSU000049",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_#text": "PSU000049",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@accountingEntity": "3555",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@lid": "lid://infor.ln.ln01/3555",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@location": "S_350",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@variationID": "5",
+      "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_#text": "2500",
+      "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID": "EUR",
+      "PurchaseOrder_PurchaseOrderHeader_Note_#text": "Subcontracting additions",
+      "PurchaseOrder_PurchaseOrderHeader_Note_@type": "Header"
+    }
+  ],
+  "to_records_header": [
+    {
+      "ApplicationArea_BODID": "infor-nid:TEST_TST:3555:S_350:PSU000049:?PurchaseOrder&verb=Sync",
+      "ApplicationArea_CreationDateTime": "2020-06-18T09:41:56Z",
+      "ApplicationArea_Sender_ComponentID": "erp",
+      "ApplicationArea_Sender_ConfirmationCode": "OnError",
+      "ApplicationArea_Sender_LogicalID": "lid://infor.ln.ln01/3555",
+      "PurchaseOrder_PurchaseOrderHeader_DisplayID": "PSU000049",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_#text": "PSU000049",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@accountingEntity": "3555",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@lid": "lid://infor.ln.ln01/3555",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@location": "S_350",
+      "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID_@variationID": "5",
+      "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_#text": "2500",
+      "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID": "EUR",
+      "PurchaseOrder_PurchaseOrderHeader_Note_#text": "Subcontracting additions",
+      "PurchaseOrder_PurchaseOrderHeader_Note_@type": "Header",
+      "Sync_AccountingEntityID": "3555",
+      "Sync_ActionCriteria_ActionExpression_@actionCode": "Add",
+      "Sync_LocationID": "S_350",
+      "Sync_TenantID": "TEST_TST"
+    }
+  ]
+}

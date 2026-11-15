@@ -12,4 +12,5 @@ recursive-include scripts *
 
 global-exclude *.pyc
 global-exclude __pycache__
-global-exclude *.egg-info
+global-exclude .gitignore
+prune src/BODtoJSON.egg-info

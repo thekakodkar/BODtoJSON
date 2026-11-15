@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.4.0] - 2026-11-15
+
+### Security
+- Restored a **zero-runtime-dependency** core. XML is parsed with a stdlib-only hardened loader (`xml.parsers.expat` + `ElementTree.TreeBuilder`); `defusedxml` is no longer required.
+- Any `DOCTYPE` or `ENTITY` declaration is rejected before parse (UTF-8/16/32 byte scan plus decoded-text scan), including external DTDs, UTF-16/32 encodings, and declarations hidden after comments.
+- Expat handlers forbid DTD, entity declarations, and external entity references. Parameter-entity parsing is disabled. Reparse deferral is enabled when available.
+- Added a configurable maximum element depth (default 256) on `BODConverter`.
+- Removed the unsafe `xml.etree.ElementTree.fromstring` fallback that ran when `defusedxml` was missing in 2.3.1.
+
+### Fixed
+- Verb and `DataArea` lookups now match **direct children** only, so a nested element with the same local name as the verb can no longer raise a raw `ValueError`.
+- FastAPI body-size limit (HTTP 413) now applies to every POST route, including `/project` and `/convert/json/wrapper`.
+- Accept `bytes` as well as `str` in `to_json` / `to_ndjson` / `to_records` / `project` (including UTF-16/32 and BOM-encoded payloads).
+
+### Changed
+- Package version 2.4.0. `pip install BODtoJSON` installs no third-party runtime dependencies.
+- Documentation updated for ION / air-gapped use and for the conservative DTD policy (literal `<!DOCTYPE` / `<!ENTITY` tokens in CDATA or comments are rejected).
+
+
 ## [2.3.1] - 2026-11-15
 
 ### Security

@@ -1,4 +1,4 @@
-# BODtoJSON v2.3.1
+# BODtoJSON v2.4.0
 
 **BODtoJSON** is a safe, enterprise-grade Python data liquidity engine designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON, streaming NDJSON, and declarative target schemas.
 
@@ -7,11 +7,11 @@
 </p>
 <center><img width="769" height="336" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" /></center>
 
-v2.3.1 establishes a safe core engine, introduces native single-pass ElementTree traversal, adds declarative schema projection (`project()` / `to_records()`) for Infor ION Scripting, and delivers a dual-pipeline streaming standard for Data Lakehouses and Vector Databases.
+v2.4.0 restores a **zero-runtime-dependency** core that is safe enough for Infor ION Scripting: XML is parsed with a stdlib-only hardened loader, while `to_records()` / `project()`, single-pass flattening, and the optional FastAPI extra stay unchanged.
 
-## 🚀 What’s New in v2.3.1 (vs. v1.0.0)
+## 🚀 What’s New in v2.4.0 (vs. v1.0.0)
 
-* **Safe Core Engine:** Switched to `defusedxml` for secure XML parsing (rejects entity expansion and XXE) while retaining single-pass ElementTree traversal.
+* **Zero-Dependency Safe Core:** No third-party runtime dependencies. XML is parsed with a stdlib-only hardened loader (`xml.parsers.expat` + `xml.etree.ElementTree`) that rejects DTD/entity declarations, XXE, billion-laughs and quadratic blowup, and enforces size and depth limits.
 
 * **Infor ION Scripting Helpers (`to_records` & `project`):** Eliminates boilerplate XML namespace parsing, `json.loads()` line-splitting loops, and manual boolean coercion in ION scripts. Captures `ApplicationArea` and `DataArea/<Verb>` header metadata automatically (`include_header=True`) and maps records directly into target REST/API JSON schemas.
 
@@ -25,9 +25,9 @@ v2.3.1 establishes a safe core engine, introduces native single-pass ElementTree
 
 ## 📈 Architectural Comparison
 
-| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.3.1)** | 
+| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.4.0)** | 
 | ----- | ----- | ----- | 
-| **Core Dependencies** | Relied on `xmltodict` | **defusedxml for secure XML parsing** | 
+| **Core Dependencies** | Relied on `xmltodict` | **None (Python stdlib only)** | 
 | **Memory & Speed** | Double-pass XML $\rightarrow$ Dict $\rightarrow$ Flat Dict | **Single-pass ElementTree traversal (\~50% lower memory)** | 
 | **Data Formats** | Standard Structured JSON string | **Standard JSON, Strict NDJSON, Native Dicts & Projected Schemas** | 
 | **Infor ION Scripting** | Manual XML + JSON loop boilerplate | **Declarative `project()` with automatic header context** | 
@@ -36,9 +36,9 @@ v2.3.1 establishes a safe core engine, introduces native single-pass ElementTree
 
 ## 🛠️ Installation
 
-### Core Library (Zero Dependencies)
+### Core Library (Zero Runtime Dependencies)
 
-Ideal for Infor ION Scripting, data-engineering pipelines, ETL workers, and air-gapped environments:
+Ideal for Infor ION Scripting, data-engineering pipelines, ETL workers, and air-gapped environments. `pip install BODtoJSON` pulls no third-party packages (`pip show BODtoJSON` lists no Requires). ION hosts need the CPython stdlib modules `xml.etree.ElementTree` and `xml.parsers.expat` (ElementTree is expat-backed on CPython):
 
 ```bash
 pip install BODtoJSON
@@ -58,8 +58,9 @@ pip install "BODtoJSON[api]"
 BODtoJSON/
 ├── src/
 │   └── BODtoJSON/
-│       ├── __init__.py      # Package version (2.3.1) & API exports
-│       ├── mapper.py        # Safe Dual-Pipeline & Projection Engine
+│       ├── __init__.py      # Package version (2.4.0) & API exports
+│       ├── safe_xml.py      # Stdlib-only hardened XML parser
+│       ├── mapper.py        # Dual-Pipeline & Projection Engine
 │       └── api.py           # Optional FastAPI Microservice Ingestion Layer
 ├── tests/
 │   ├── data/                # Raw OAGIS XML Test Datasets (.xml)
@@ -180,17 +181,25 @@ Open `http://127.0.0.1:8000/docs` to test `/convert/ndjson`, `/convert/json`, an
 
 ## 🤝 Commercial Value
 
-By normalizing complex ERP structures into safe, flat JSON, streaming NDJSON, and projected API payloads, **BODtoJSON v2.3.1** eliminates third-party library bloat and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
+By normalizing complex ERP structures into safe, flat JSON, streaming NDJSON, and projected API payloads, **BODtoJSON v2.4.0** stays at zero third-party runtime dependencies and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
 
 **Author:** Niraj Kakodkar
 
 **License:** MIT
+## 🔒 Security (XML parsing)
+
+The core library never calls `xml.etree.ElementTree.fromstring`. Input is scanned for `DOCTYPE` / `ENTITY` declarations (including UTF-16/32 and BOM encodings) and then parsed with `xml.parsers.expat` handlers that forbid DTDs, entity declarations, and external entity references. Parameter-entity parsing is disabled. A default 10 MiB size cap and a default depth cap of 256 apply; both are configurable on `BODConverter`.
+
+This is stricter than a default `defusedxml.ElementTree.fromstring` call (used in 2.3.1 with `forbid_dtd=False`). Literal `<!DOCTYPE` or `<!ENTITY` tokens in comments or CDATA are also rejected. Infor OAGIS BODs do not need DTDs.
+
+The optional API (`pip install "BODtoJSON[api]"`) is unauthenticated and caps request bodies at 10 MiB (HTTP 413). Put it behind your own auth and a reverse-proxy size limit for production.
+
 ## Known Limitations
 
 - Flattening is lossy and one-way. There is no JSON → BOD reverse mapping.
 - `to_json()` returns only the **first** noun under `DataArea`. Use `to_records()` or `to_ndjson()` to get all nouns.
 - The optional FastAPI extra is unauthenticated. Deploy it only on a trusted network or behind your own authentication/authorization.
-- Secure XML parsing is provided by `defusedxml` (core dependency). Do not disable it.
 - Mixed content (text + child elements) preserves the direct text as `_#text` where present; tail text after children is not specially handled beyond ElementTree defaults.
 - Empty elements flatten to JSON `null`.
+- Documents whose text, comments, or CDATA contain the literal tokens `<!DOCTYPE` or `<!ENTITY` are rejected.
 

@@ -1,12 +1,12 @@
-import json
 import pytest
 
 pytest.importorskip("fastapi")
 pytest.importorskip("httpx")
 
 from fastapi.testclient import TestClient
-from BODtoJSON.api import app
+
 from BODtoJSON import __version__
+from BODtoJSON.api import app
 
 client = TestClient(app)
 
@@ -82,3 +82,74 @@ def test_api_project_happy(xml_loader):
         },
     )
     assert response.status_code == 200
+
+
+def test_api_root_version():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json()["version"] == __version__
+    health = client.get("/health")
+    assert health.status_code == 200
+    assert health.json()["status"] == "healthy"
+
+
+def test_api_ndjson_malformed_returns_400():
+    response = client.post(
+        "/convert/ndjson",
+        content="not-xml",
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 400
+    assert response.json()["status"] == "error"
+
+
+def test_api_oversize_returns_413(monkeypatch):
+    import BODtoJSON.api as api_mod
+
+    monkeypatch.setattr(api_mod, "MAX_BODY_SIZE", 64)
+    over = "Z" * 200
+    r = client.post(
+        "/convert/json?verb=Sync",
+        content=over,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert r.status_code == 413
+
+    r = client.post(
+        "/project",
+        json={"xml": over, "verb": "Sync", "schema_map": {"a": "b"}},
+    )
+    assert r.status_code == 413
+
+    r = client.post(
+        "/convert/json/wrapper",
+        json={"xml": over, "verb": "Sync"},
+    )
+    assert r.status_code == 413
+
+
+def test_api_unexpected_errors_return_500(monkeypatch):
+    def boom(*_args, **_kwargs):
+        raise RuntimeError("unexpected")
+
+    monkeypatch.setattr("BODtoJSON.api.to_json", boom)
+    monkeypatch.setattr("BODtoJSON.api.to_ndjson", boom)
+    monkeypatch.setattr("BODtoJSON.api.project", boom)
+    monkeypatch.setattr("BODtoJSON.api.convert", boom)
+
+    xml = "<SyncPO><DataArea><Sync/><PO/></DataArea></SyncPO>"
+    assert client.post("/convert/json", content=xml, headers={"Content-Type": "text/plain"}).status_code == 500
+    assert client.post("/convert/ndjson", content=xml, headers={"Content-Type": "text/plain"}).status_code == 500
+    assert client.post("/project", json={"xml": xml, "verb": "Sync", "schema_map": {"a": "b"}}).status_code == 500
+    assert client.post("/convert", content=xml, headers={"Content-Type": "text/plain"}).status_code == 500
+    assert client.post("/convert/json/wrapper", json={"xml": xml, "verb": "Sync"}).status_code == 500
+
+
+def test_legacy_convert_error_json_is_400(xml_loader):
+    response = client.post(
+        "/convert",
+        content="not-xml",
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 400
+    assert response.json()["status"] == "error"
