@@ -30,14 +30,14 @@ classifiers = [
 
 [project.optional-dependencies]
 api = [
-    "fastapi>=0.100.0",
+    "fastapi>=0.162.5",
     "uvicorn>=0.20.0",
 ]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "httpx>=0.24.0",
-    "fastapi>=0.100.0",
+    "fastapi>=0.162.5",
     "ruff>=0.6",
     "mypy>=1.8",
     "build>=1.0",
