@@ -1,4 +1,4 @@
-MIT License
+MIT License with Attribution Requirement
 
 Copyright (c) 2020-2026 Niraj Kakodkar
 
@@ -11,6 +11,19 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
+
+Attribution. Any use, copy, or derivative of the Software, including Infor ION
+scripts and other code generated with or for it, must retain this credit in its
+source code or accompanying documentation:
+
+    Powered by BODtoJSON by Niraj Kakodkar (Bizzteq) – https://thekakodkar.github.io/BODtoJSON/
+
+For a generated Infor ION script, keeping its header comment that names
+BODtoJSON and links to https://thekakodkar.github.io/BODtoJSON/ satisfies this
+condition, for example:
+
+    # Infor ION Scripting: BOD -> CoAMed JSON with BODtoJSON 2.6.0
+    # (pip install BODtoJSON==2.6.0). https://thekakodkar.github.io/BODtoJSON/
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

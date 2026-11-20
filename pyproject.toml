@@ -11,7 +11,7 @@ authors = [
 description = "Zero-dependency OAGIS BOD to Flattened JSON, NDJSON, and Schema Projection engine"
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
+license = "LicenseRef-MIT-Attribution"
 license-files = ["LICENSE"]
 dependencies = []
 classifiers = [

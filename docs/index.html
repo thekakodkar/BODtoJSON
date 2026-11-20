@@ -1057,6 +1057,12 @@
                         <span class="nav-label">Interactive Previewer</span>
                     </a>
                 </li>
+                <li>
+                    <a class="nav-link" href="#license" title="License &amp; Attribution">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"></path></svg>
+                        <span class="nav-label">License &amp; Attribution</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
@@ -1127,7 +1133,9 @@ output_var = bod_to_json(input_var, rules=RULES)  # JSON array, one object per n
                 <p><strong>Complete ION script</strong> (<code class="inline">examples/ion_script.py</code>, template in <code class="inline">examples/ion_purchase_order_template.json</code>):</p>
                 <div class="code-wrapper">
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                    <pre>from BODtoJSON import bod_to_json
+                    <pre># Infor ION Scripting: BOD -> PurchaseOrder JSON with BODtoJSON 2.6.0
+# (pip install BODtoJSON==2.6.0). https://thekakodkar.github.io/BODtoJSON/
+from BODtoJSON import bod_to_json
 
 RULES = {
     "externalSystemId": {"template": "{Sync_AccountingEntityID}_{PurchaseOrder_PurchaseOrderHeader_DisplayID}"},
@@ -1366,7 +1374,9 @@ pip install "BODtoJSON[api]==2.6.0"
                 <p>Eliminate manual <code class="inline">ElementTree</code> namespace parsing, <code class="inline">json.loads()</code> loops, and repetitive <code class="inline">.get()</code> boilerplate. Define a declarative dictionary and let <code class="inline">project()</code> extract header fields (<code class="inline">Sync_AccountingEntityID</code>), interpolate strings, map keys, and coerce booleans in one call.</p>
                 <div class="code-wrapper">
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                    <pre>import json
+                    <pre># Infor ION Scripting: BOD -> CoAMed JSON with BODtoJSON 2.6.0
+# (pip install BODtoJSON==2.6.0). https://thekakodkar.github.io/BODtoJSON/
+import json
 from BODtoJSON import project
 
 # Declarative target schema:
@@ -2046,8 +2056,31 @@ python -m BODtoJSON to-bod - &lt; records.json &gt; order.xml
             </div>
         </section>
 
+        <!-- LICENSE & ATTRIBUTION -->
+        <section id="license">
+            <h2>License &amp; Attribution</h2>
+            <div class="use-case-card">
+                <div class="card-header">
+                    <span class="card-title">MIT License with an attribution requirement</span>
+                    <span class="tag slate">Credit required</span>
+                </div>
+                <p>You may use, copy, modify, merge, publish, distribute, sublicense and sell BODtoJSON, including commercially. Any use, copy, or derivative, <strong>including generated Infor ION scripts</strong>, must keep this credit in its source code or documentation:</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>Powered by BODtoJSON by Niraj Kakodkar (Bizzteq) – https://thekakodkar.github.io/BODtoJSON/</pre>
+                </div>
+                <p>In an ION script, the header comment counts as the credit. Keep it when you copy or generate a script:</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre># Infor ION Scripting: BOD -> CoAMed JSON with BODtoJSON 2.6.0
+# (pip install BODtoJSON==2.6.0). https://thekakodkar.github.io/BODtoJSON/</pre>
+                </div>
+                <p>The attribution requirement applies to releases after 2.6.0 and to the code in the repository from the commit that added it. Versions already on PyPI (up to and including 2.6.0) remain under the plain MIT License they were released with. Full text: <a href="https://github.com/thekakodkar/BODtoJSON/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">LICENSE</a>.</p>
+            </div>
+        </section>
+
         <footer>
-            <span>BODtoJSON v2.6.0 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | MIT License</span>
+            <span>BODtoJSON v2.6.0 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | <a href="#license" style="color:inherit;text-decoration:underline;">MIT License + attribution</a></span>
             <div class="footer-links">
                 <a href="https://github.com/thekakodkar/BODtoJSON" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">PyPI</a>

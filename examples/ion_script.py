@@ -1,9 +1,8 @@
-"""Infor ION Scripting: map a SyncPurchaseOrder BOD to a target REST payload.
-
-ION supplies ``input_var`` (the BOD XML) and reads ``output_var``.
-RULES is the output template from examples/ion_purchase_order_template.json,
-pasted inline because ION scripts usually cannot read files.
-"""
+# Infor ION Scripting: BOD -> PurchaseOrder JSON with BODtoJSON 2.6.0
+# (pip install BODtoJSON==2.6.0). https://thekakodkar.github.io/BODtoJSON/
+# ION supplies input_var (the SyncPurchaseOrder BOD XML) and reads output_var.
+# RULES is the output template from examples/ion_purchase_order_template.json,
+# pasted inline because ION scripts usually cannot read files.
 
 from BODtoJSON import bod_to_json
 

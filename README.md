@@ -22,6 +22,8 @@ output_var = bod_to_json(input_var, rules=RULES)  # one object per noun, as a JS
 An Infor ION script mapping a `SyncPurchaseOrder` to a REST payload, with header fields, one item per order line, and nested coding lines:
 
 ```python
+# Infor ION Scripting: BOD -> PurchaseOrder JSON with BODtoJSON 2.6.0
+# (pip install BODtoJSON==2.6.0). https://thekakodkar.github.io/BODtoJSON/
 from BODtoJSON import bod_to_json
 
 RULES = {
@@ -215,6 +217,8 @@ python scripts/inspect_payload.py
 *Eliminates manual XML namespace handling, `json.loads()` loops, and boolean boilerplate.*
 
 ```python
+# Infor ION Scripting: BOD -> CoAMed JSON with BODtoJSON 2.6.0
+# (pip install BODtoJSON==2.6.0). https://thekakodkar.github.io/BODtoJSON/
 import json
 from BODtoJSON import project
 
@@ -509,7 +513,22 @@ By normalizing complex ERP structures into safe, flat JSON, streaming NDJSON, an
 
 **Author:** Niraj Kakodkar
 
-**License:** MIT
+**License:** MIT with an attribution requirement. See [License & attribution](#-license--attribution).
+
+## 📜 License & attribution
+
+BODtoJSON is released under the [MIT License with an attribution requirement](LICENSE). You may use, copy, modify, merge, publish, distribute, sublicense and sell it, including commercially. Any use, copy, or derivative, **including generated Infor ION scripts**, must keep this credit in its source code or documentation:
+
+> Powered by BODtoJSON by Niraj Kakodkar (Bizzteq) – https://thekakodkar.github.io/BODtoJSON/
+
+In an ION script, the header comment counts as the credit. Keep it when you copy or generate a script:
+
+```python
+# Infor ION Scripting: BOD -> CoAMed JSON with BODtoJSON 2.6.0
+# (pip install BODtoJSON==2.6.0). https://thekakodkar.github.io/BODtoJSON/
+```
+
+The attribution requirement applies to releases after 2.6.0 and to the code in this repository from the commit that added it. Versions already published to PyPI (up to and including 2.6.0) remain under the plain MIT License they were released with.
 ## 🔒 Security (XML parsing)
 
 The core library never calls `xml.etree.ElementTree.fromstring`. Input is scanned for `DOCTYPE` / `ENTITY` declarations (including UTF-16/32 and BOM encodings) and then parsed with `xml.parsers.expat` handlers that forbid DTDs, entity declarations, and external entity references. Parameter-entity parsing is disabled. A default 10 MiB size cap and a default depth cap of 256 apply; both are configurable on `BODConverter`.

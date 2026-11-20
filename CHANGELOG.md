@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- **License**: MIT with an attribution requirement (`LicenseRef-MIT-Attribution` in the package metadata). Any use, copy, or derivative, including generated Infor ION scripts, must keep the credit "Powered by BODtoJSON by Niraj Kakodkar (Bizzteq) – https://thekakodkar.github.io/BODtoJSON/". In an ION script, the header comment that names BODtoJSON and links to that page counts as the credit. Published versions up to and including 2.6.0 stay under plain MIT.
+- The ION examples (`examples/ion_script.py`, README, docs) start with that header comment.
+
 ## [2.6.0] - 2026-11-20
 
 ### Added
