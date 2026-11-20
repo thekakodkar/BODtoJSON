@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.5.0] - Unreleased
+## [2.5.0] - 2026-11-20
 
 ### Added
 - **Transformation rules** (`BODtoJSON.transforms`, `rules=` on `to_json`, `to_ndjson`, `to_records`, `project` and `BODConverter` methods). Rules are declarative JSON and are interpreted with no `eval`/`exec`:
