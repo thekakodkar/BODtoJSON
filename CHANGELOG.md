@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.6.0] - Unreleased
+## [2.6.0] - 2026-11-20
 
 ### Added
 - **One-call mapping to your own JSON shape**: `bod_to_json(xml, rules)` (JSON string), `bod_to_data(xml, rules)` (Python objects), and `Mapper(rules)` / `Mapper.from_file(path)` (compile once, then `.to_json` / `.to_data` / `.apply(record)`).
