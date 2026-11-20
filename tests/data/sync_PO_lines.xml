@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SyncPurchaseOrder xmlns="http://schema.infor.com/InforOAGIS/2" releaseID="9.2" versionID="2.14.x">
+  <ApplicationArea>
+    <Sender>
+      <LogicalID>lid://infor.ln.ln01/3555</LogicalID>
+      <ComponentID>erp</ComponentID>
+    </Sender>
+    <CreationDateTime>2026-11-20T08:00:00Z</CreationDateTime>
+    <BODID>infor-nid:TEST_TST:3555:S_350:PSU000051:?PurchaseOrder&amp;verb=Sync</BODID>
+  </ApplicationArea>
+  <DataArea>
+    <Sync>
+      <TenantID>TEST_TST</TenantID>
+      <AccountingEntityID>3555</AccountingEntityID>
+      <ActionCriteria>
+        <ActionExpression actionCode="Add"/>
+      </ActionCriteria>
+    </Sync>
+    <PurchaseOrder>
+      <PurchaseOrderHeader>
+        <DocumentID>
+          <ID accountingEntity="3555" variationID="2">PSU000051</ID>
+        </DocumentID>
+        <DisplayID>PSU000051</DisplayID>
+        <OrderDateTime>2026-11-19T10:15:00Z</OrderDateTime>
+        <Status>
+          <Code>Open</Code>
+        </Status>
+        <ExtendedAmount currencyID="EUR">1350.50</ExtendedAmount>
+        <SupplierParty>
+          <PartyIDs>
+            <ID accountingEntity="3555">SUP0042</ID>
+          </PartyIDs>
+          <Name>Nordic Parts Oy</Name>
+        </SupplierParty>
+      </PurchaseOrderHeader>
+      <PurchaseOrderLine>
+        <LineNumber>10</LineNumber>
+        <Item>
+          <ID>ITEM-A</ID>
+        </Item>
+        <Quantity unitCode="EA">5</Quantity>
+        <UnitPrice>
+          <Amount currencyID="EUR">100</Amount>
+        </UnitPrice>
+        <ExtendedAmount currencyID="EUR">500</ExtendedAmount>
+        <CodingLine>
+          <Account>4000</Account>
+          <Percentage>60</Percentage>
+        </CodingLine>
+        <CodingLine>
+          <Account>4010</Account>
+          <Percentage>40</Percentage>
+        </CodingLine>
+      </PurchaseOrderLine>
+      <PurchaseOrderLine>
+        <LineNumber>20</LineNumber>
+        <Item>
+          <ID>ITEM-B</ID>
+        </Item>
+        <Quantity unitCode="KG">2.5</Quantity>
+        <UnitPrice>
+          <Amount currencyID="EUR">300.20</Amount>
+        </UnitPrice>
+        <ExtendedAmount currencyID="EUR">750.50</ExtendedAmount>
+        <CodingLine>
+          <Account>4100</Account>
+          <Percentage>100</Percentage>
+        </CodingLine>
+      </PurchaseOrderLine>
+      <PurchaseOrderLine>
+        <LineNumber>30</LineNumber>
+        <Item>
+          <ID>ITEM-C</ID>
+        </Item>
+        <Quantity unitCode="EA">1</Quantity>
+        <UnitPrice>
+          <Amount currencyID="EUR">100</Amount>
+        </UnitPrice>
+        <ExtendedAmount currencyID="EUR">100</ExtendedAmount>
+      </PurchaseOrderLine>
+    </PurchaseOrder>
+  </DataArea>
+</SyncPurchaseOrder>

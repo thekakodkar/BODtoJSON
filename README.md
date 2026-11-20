@@ -1,4 +1,4 @@
-# BODtoJSON v2.5.0
+# BODtoJSON v2.6.0
 
 **BODtoJSON** is a safe, enterprise-grade Python data liquidity engine designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON, streaming NDJSON, and declarative target schemas.
 
@@ -7,7 +7,95 @@
 </p>
 <center><img width="769" height="336" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" /></center>
 
-v2.5.0 adds **declarative transformation rules** (if/else, case/switch, concat/merge, templates and more) that run on BOD elements and attributes before the JSON is produced, and a **JSON → BOD reverse converter**. The core still has **zero runtime dependencies** and stays safe for Infor ION Scripting: XML is parsed with a stdlib-only hardened loader, and rules are interpreted, never `eval`-ed.
+v2.6.0 adds **one-call mapping to your own JSON shape**: write the target JSON as a template, put BOD field paths where values go, and call `bod_to_json(xml, rules=TEMPLATE)`. Lines, nested repeats, if/case conditions and merges need no helper code.
+
+v2.5.0 added **declarative transformation rules** (if/else, case/switch, concat/merge, templates and more) that run on BOD elements and attributes before the JSON is produced, and a **JSON → BOD reverse converter**. The core still has **zero runtime dependencies** and stays safe for Infor ION Scripting: XML is parsed with a stdlib-only hardened loader, and rules are interpreted, never `eval`-ed.
+
+## ⚡ Quick start: mapping to your own JSON in 3 lines
+
+```python
+from BODtoJSON import bod_to_json
+RULES = {...}                                    # the JSON you want, with BOD paths as values
+output_var = bod_to_json(input_var, rules=RULES)  # one object per noun, as a JSON array
+```
+
+An Infor ION script mapping a `SyncPurchaseOrder` to a REST payload, with header fields, one item per order line, and nested coding lines:
+
+```python
+from BODtoJSON import bod_to_json
+
+RULES = {
+    "externalSystemId": {"template": "{Sync_AccountingEntityID}_{PurchaseOrder_PurchaseOrderHeader_DisplayID}"},
+    "isActive": True,
+    "companyId": {"template": "company[{Sync_AccountingEntityID}]"},
+    "amount": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount",
+    "currencyCode": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID",
+    "orderIdentifier": "PurchaseOrder_PurchaseOrderHeader_DisplayID",
+    "registerDate": "PurchaseOrder_PurchaseOrderHeader_OrderDateTime",
+    "supplier": "PurchaseOrder_PurchaseOrderHeader_SupplierParty_PartyIDs_ID",
+    "externalSystemMetadata": [{}],
+    "purchaseOrderLines": {
+        "repeat": "PurchaseOrder_PurchaseOrderLine_*",
+        "item": {
+            "externalSystemId": {"template": "{Sync_AccountingEntityID}_{PurchaseOrder_PurchaseOrderHeader_DisplayID}_{PurchaseOrder_PurchaseOrderLine_*_LineNumber}"},
+            "isActive": True,
+            "amount": "PurchaseOrder_PurchaseOrderLine_*_ExtendedAmount",
+            "lineNumber": "PurchaseOrder_PurchaseOrderLine_*_LineNumber",
+            "quantity": "PurchaseOrder_PurchaseOrderLine_*_Quantity",
+            "unit": "PurchaseOrder_PurchaseOrderLine_*_Quantity_@unitCode",
+            "unitPrice": "PurchaseOrder_PurchaseOrderLine_*_UnitPrice_Amount",
+            "codingLines": {"repeat": "CodingLine_*", "item": {}},
+            "deliveryLines": [{"isActive": True, "externalSystemMetadata": [{}]}],
+            "externalSystemMetadata": [{}],
+        },
+    },
+    "purchaseOrderComments": [{}],
+}
+
+output_var = bod_to_json(input_var, rules=RULES)
+```
+
+Output for a three-line order (abridged):
+
+```json
+[{"externalSystemId": "3555_PSU000051", "isActive": true, "companyId": "company[3555]",
+  "amount": "1350.50", "currencyCode": "EUR", "orderIdentifier": "PSU000051",
+  "registerDate": "2026-11-19T10:15:00Z", "supplier": "SUP0042", "externalSystemMetadata": [{}],
+  "purchaseOrderLines": [
+    {"externalSystemId": "3555_PSU000051_10", "isActive": true, "amount": "500", "lineNumber": "10",
+     "quantity": "5", "unit": "EA", "unitPrice": "100", "codingLines": [{}, {}],
+     "deliveryLines": [{"isActive": true, "externalSystemMetadata": [{}]}], "externalSystemMetadata": [{}]},
+    {"externalSystemId": "3555_PSU000051_20", "...": "..."},
+    {"externalSystemId": "3555_PSU000051_30", "...": "...", "codingLines": []}],
+  "purchaseOrderComments": [{}]}]
+```
+
+Conditions and merges go straight into the template:
+
+```python
+"status":  {"case": [{"when": {"eq": ["PurchaseOrder_PurchaseOrderHeader_Status_Code", "Open"]}, "then": "O"},
+                     {"when": {"in": ["PurchaseOrder_PurchaseOrderHeader_Status_Code", ["Closed", "Done"]]}, "then": "C"}],
+            "default": "?"},
+"band":    {"if": {"gt": ["PurchaseOrder_PurchaseOrderHeader_ExtendedAmount", 1000]}, "then": "high", "else": "low"},
+"label":   {"concat": ["PO-", "PurchaseOrder_PurchaseOrderHeader_DisplayID"]},
+"total":   {"number": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount"},
+```
+
+* `bod_to_json(xml, rules)` returns a JSON string, and `bod_to_data(xml, rules)` returns Python objects.
+* `single=True` returns the first noun's object instead of a list. `missing=""` returns empty strings instead of `null` for absent fields.
+* The verb (`Sync`, `Process`, ...) is detected. Header fields (`Sync_*`, `ApplicationArea_*`) work everywhere, including inside lines.
+* `rules` can be a dict, JSON text, or a path to a JSON file. `Mapper(rules)` / `Mapper.from_file(path)` compiles a template once for reuse.
+* CLI: `bodtojson to-json order.xml --rules ion_template.json`.
+* Full syntax: [Output Template Reference](#-output-template-reference). Files: `examples/ion_purchase_order_template.json`, `examples/ion_script.py`.
+
+## 🆕 What’s New in v2.6.0
+
+* **`bod_to_json` / `bod_to_data` / `Mapper`:** one call from a BOD to your nested JSON shape (output template). Supports `repeat` (with `*` bound to the current line, nested repeats relative to the line, and `where` filters), `template`, `if`, `case` (list or map form), `concat`, `coalesce`, `upper`/`lower`/`trim`, `number`, `replace`, `substr`, `literal` and `path`/`default`.
+* **Compact conditions:** `{"eq": ["Path", "value"]}` alongside the existing `{"path", "op", "value"}` form.
+* **Auto-detection:** 2.5 flat rules (`"$Path"`, `mode`/`drop`) still work, in `bod_to_json` and everywhere else.
+* **Verb auto-detection:** in `bod_to_json`, in `to_records(xml, None)`, and in the CLI (`--verb` is now optional).
+* **Clear errors:** bad templates raise `BODTransformError` naming the location, for example `Rule at '$.purchaseOrderLines.repeat': repeat pattern must end with '_*'`.
+* **CLI:** `to-json --rules template.json [--single] [--missing-empty]`. **API:** `POST /map`.
 
 ## 🆕 What’s New in v2.5.0
 
@@ -33,7 +121,7 @@ v2.5.0 adds **declarative transformation rules** (if/else, case/switch, concat/m
 
 ## 📈 Architectural Comparison
 
-| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.5.0)** | 
+| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.6.0)** | 
 | ----- | ----- | ----- | 
 | **Core Dependencies** | Relied on `xmltodict` | **None (Python stdlib only)** | 
 | **Memory & Speed** | Double-pass XML $\rightarrow$ Dict $\rightarrow$ Flat Dict | **Single-pass ElementTree traversal (\~50% lower memory)** | 
@@ -42,6 +130,7 @@ v2.5.0 adds **declarative transformation rules** (if/else, case/switch, concat/m
 | **Ingestion Target** | Application memory / NoSQL DBs | **Data Lakehouses (Snowflake/Databricks), Vector DBs & ION APIs** | 
 | **System Delivery** | Library imports only | **Library + CLI + Optional FastAPI Microservice Tier (`[api]`)** | 
 | **Field Transformations** | Custom Python per pipeline | **Declarative, eval-free rules: if/else, case, concat, template** | 
+| **Nested Target JSON** | Hand-written mapping engine | **`bod_to_json(xml, rules=TEMPLATE)`: one call** | 
 | **Direction** | BOD → JSON only | **BOD → JSON and JSON → BOD** | 
 
 ## 🛠️ Installation
@@ -68,14 +157,17 @@ pip install "BODtoJSON[api]"
 BODtoJSON/
 ├── src/
 │   └── BODtoJSON/
-│       ├── __init__.py      # Package version (2.5.0) & API exports
+│       ├── __init__.py      # Package version (2.6.0) & API exports
 │       ├── safe_xml.py      # Stdlib-only hardened XML parser
 │       ├── mapper.py        # Dual-Pipeline & Projection Engine
+│       ├── mapping.py       # bod_to_json / Mapper: output templates (no eval)
 │       ├── transforms.py    # Declarative transformation rules (no eval)
 │       ├── reverse.py       # JSON -> BOD XML builder
 │       ├── cli.py           # `bodtojson` command line (argparse)
 │       └── api.py           # Optional FastAPI Microservice Ingestion Layer
 ├── examples/
+│   ├── ion_purchase_order_template.json  # Output template (headline ION example)
+│   ├── ion_script.py                     # The 3-line ION script
 │   ├── rules_purchase_order.json  # BOD -> JSON rules example
 │   ├── rules_json_to_bod.json     # JSON -> BOD rules example
 │   └── order.json                 # Sample foreign JSON order
@@ -85,6 +177,7 @@ BODtoJSON/
 │   ├── conftest.py          # Pytest Dataset Loader Fixtures
 │   ├── test_mapper.py       # Core Engine Unit Tests, ION Projection & Regression Suite
 │   ├── test_safe_xml.py     # Hardened parser tests
+│   ├── test_mapping.py      # Output template / bod_to_json tests
 │   ├── test_transforms.py   # Transformation rule tests
 │   ├── test_reverse.py      # JSON -> BOD and round-trip tests
 │   ├── test_cli.py          # CLI tests
@@ -307,6 +400,7 @@ Options: `noun`, `rules`, `separator`, `namespace` (`None` to omit), `root`, `re
 ### 8. Command Line (`bodtojson`)
 
 ```bash
+bodtojson to-json order.xml --rules examples/ion_purchase_order_template.json --single --indent 2
 bodtojson to-json order.xml --verb Sync --rules examples/rules_purchase_order.json --format records --include-header --indent 2
 bodtojson to-json order.xml --format ndjson -o order.ndjson
 bodtojson to-bod order.json --verb Sync --noun PurchaseOrder --rules examples/rules_json_to_bod.json --action-code Replace -o order.xml
@@ -321,13 +415,45 @@ Launch the microservice locally:
 uvicorn BODtoJSON.api:app --reload
 ```
 
-Open `http://127.0.0.1:8000/docs` to test `/convert/ndjson`, `/convert/json`, `/project`, `/transform`, and `/convert/bod` directly via Swagger UI.
+Open `http://127.0.0.1:8000/docs` to test `/convert/ndjson`, `/convert/json`, `/project`, `/map`, `/transform`, and `/convert/bod` directly via Swagger UI.
 
 | Endpoint | Body | Returns |
 | ----- | ----- | ----- |
+| `POST /map` | `{"xml", "rules", "verb"?, "single", "include_header", "missing"}` | Your JSON shape (template or flat rules) |
 | `POST /transform` | `{"xml", "verb", "rules", "include_header"}` | JSON array of transformed records |
 | `POST /project` | `{"xml", "verb", "schema_map", "include_header", "rules"?}` | Projected items (rules run first) |
 | `POST /convert/bod` | `{"data", "verb", "noun"?, "rules"?, "action_code"?, "namespace"?, "release_id"?, "version_id"?, "root"?, "include_application_area", "pretty"}` | `application/xml` BOD |
+
+## 🧭 Output Template Reference
+
+Used by `bod_to_json`, `bod_to_data`, `Mapper`, `POST /map` and `bodtojson to-json --rules`. The template is the JSON you want back:
+
+| In the template | Result |
+| ----- | ----- |
+| `"PurchaseOrder_..._DisplayID"` | Value of that field. `_#text` is tried automatically, and a leading `$` or `{…}` around the path is optional. A missing field gives `null`, or `missing=` if set. |
+| `"{A}_{B}"` / `{"template": "company[{A}]"}` | Placeholders filled with field values (missing gives `""`). `{"template": "TEXT"}` without braces is constant text. |
+| `true`, `12`, `null`, `{}`, `[]`, `[{}]` | Copied as is. |
+| `{ ... }` / `[ ... ]` | Nested output, evaluated recursively. |
+| `{"literal": x}` | `x` unchanged, never read as a path. |
+| `{"path": "P", "default": d}` | Field with a default. |
+| `{"repeat": "PurchaseOrder_PurchaseOrderLine_*", "item": {...}, "where": cond}` | One item per repeated element. A single unindexed element gives one item; none gives `[]`. Inside `item`, `*` is the current row, and paths can be relative (`"LineNumber"`). A nested repeat (`"CodingLine_*"`) is relative to the current row. Header fields work too. |
+| `{"if": cond, "then": x, "else": y}` / `{"if": [{"when": c, "then": x}, ...], "else": y}` | Conditional / else-if chain. |
+| `{"case": [{"when": cond, "then": x}, ...], "default": y}` | First matching branch. |
+| `{"case": "Path", "when": {"A": x, "B": y}, "default": z, "ignore_case": false}` | Map a field's value. |
+| `{"concat": ["PO-", "Path", ...], "sep": ""}` / `{"coalesce": ["A", "B"]}` | Merge (empty parts skipped) / first non-empty value. |
+| `{"upper": x}` `{"lower": x}` `{"trim": x}` `{"number": x, "default": 0}` `{"replace": x, "old": "a", "new": "b"}` `{"substr": x, "start": 0, "end": 3}` | Helpers. |
+
+**Plain strings:**
+- In output fields, a plain string is always a path.
+- In operator arguments and results (`then`, `else`, `default`, case values, `concat`/`coalesce` items), a plain string is a path when the field exists or the string looks like a path (it contains `_`, `@`, `#` or `*`). Otherwise it is text. So `"then": "high"` and `["PO-", "Path"]` do what you expect.
+- Use `{"literal": "..."}` to force text.
+
+**Conditions:** compact `{"eq": ["Path", "value"]}` or `{"path": "Path", "op": "eq", "value": "value"}`.
+- Operators: `eq ne gt ge lt le` (also `== != > >= < <=`), `in not_in` (list), `contains not_contains starts_with ends_with`, `exists missing empty not_empty` (`{"exists": "Path"}`).
+- Combine with `{"all": [...]}`, `{"any": [...]}` and `{"not": c}`. A bare `"Path"` is true when the field is not empty.
+- The compared value is a literal. Write `"$Other_Path"` to compare two fields. Numbers compare numerically.
+
+**Rules detection:** a template is detected automatically. 2.5 flat rules (`"$Path"` values, or the `{"rules": …, "mode": …}` wrapper) keep their 2.5 behaviour. Force either with `kind="template"` or `kind="flat"`.
 
 ## 🧩 Transformation Rules Reference
 
@@ -379,7 +505,7 @@ Comparisons are numeric when both sides are numbers (`"2500"` vs `1000`) and tex
 
 ## 🤝 Commercial Value
 
-By normalizing complex ERP structures into safe, flat JSON, streaming NDJSON, and projected API payloads (and back to BOD XML when needed), **BODtoJSON v2.5.0** stays at zero third-party runtime dependencies and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
+By normalizing complex ERP structures into safe, flat JSON, streaming NDJSON, and projected API payloads (and back to BOD XML when needed), **BODtoJSON v2.6.0** stays at zero third-party runtime dependencies and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
 
 **Author:** Niraj Kakodkar
 

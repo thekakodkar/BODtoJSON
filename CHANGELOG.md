@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.6.0] - Unreleased
+
+### Added
+- **One-call mapping to your own JSON shape**: `bod_to_json(xml, rules)` (JSON string), `bod_to_data(xml, rules)` (Python objects), and `Mapper(rules)` / `Mapper.from_file(path)` (compile once, then `.to_json` / `.to_data` / `.apply(record)`).
+  - The rules are an **output template**:
+    - plain strings are field paths, with a `_#text` fallback;
+    - `"{A}_{B}"` / `{"template": ...}` strings;
+    - literals and `{}` / `[{}]` pass through;
+    - nested objects and lists;
+    - `repeat` with `*` bound to the current line, relative paths, nested repeats relative to the line, single unindexed lines, and `where` filters;
+    - `if` (including else-if lists), `case` (branch list or value map), `concat`, `coalesce`, `upper`/`lower`/`trim`, `number`, `replace`, `substr`, `literal`, and `path`/`default`.
+  - One output object per noun (`single=True` returns the first). `missing=` sets the value for absent fields. Rules may be a dict, JSON text, or a file path.
+  - Compact conditions `{"eq": ["Path", "value"]}` (and every other operator), alongside the `{"path", "op", "value"}` form.
+  - Errors name the template location, for example `Rule at '$.purchaseOrderLines.repeat': ...`.
+  - 2.5 flat rules are auto-detected and keep their behaviour. `kind=` forces either mode.
+- Verb auto-detection: `bod_to_json(..., verb=None)`, `to_records(xml, None)`, `BODConverter.detect_verb()`, and an optional `--verb` in the CLI.
+- CLI: `bodtojson to-json in.xml --rules template.json [--single] [--missing-empty]`.
+- API: `POST /map`.
+- `examples/ion_purchase_order_template.json`, `examples/ion_script.py`, and `tests/data/sync_PO_lines.xml` (a three-line order with coding lines).
+- `tests/test_mapping.py`, which runs the user's ION template unchanged (330 tests in total).
+
+### Changed
+- The comparison logic in `transforms.py` is factored into `compare()` / `normalize_op()` and shared by both engines. There is no behaviour change.
+- Version 2.6.0, still with zero runtime dependencies.
+
 ## [2.5.0] - 2026-11-20
 
 ### Added

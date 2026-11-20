@@ -215,15 +215,33 @@ class BODConverter:
             context.update(self._flatten_element(verb_node))
         return context
 
+    def _detect_verb(self, data_area) -> str:
+        """The verb is the first element under DataArea (Sync, Process, Show, ...)."""
+        children = list(data_area)
+        if len(children) < 2:
+            raise BODStructureError(
+                f"Cannot detect the verb: '{self.pnode}' needs a verb and at least one noun."
+            )
+        return self._local_name(children[0].tag)
+
+    def detect_verb(self, bod_xml: Union[str, bytes]) -> str:
+        """Return the verb name of a BOD (the first element under DataArea)."""
+        root = self._parse(bod_xml)
+        data_area = self._find_direct_local(root, self.pnode)
+        if data_area is None:
+            raise BODStructureError(f"Target node '{self.pnode}' not found.")
+        return self._detect_verb(data_area)
+
     def to_records(
         self,
         bod_xml: Union[str, bytes],
-        verb: str,
+        verb: Optional[str],
         include_header: bool = False,
         rules: Optional[RulesLike] = None,
     ) -> List[Dict[str, Any]]:
         """
         Parses OAGIS XML into a list of flattened dictionaries (one per noun).
+        ``verb=None`` detects the verb (the first element under DataArea).
 
         ``rules`` (dict, JSON text, or TransformRules) are applied to each
         record after flattening (and after header merge when include_header).
@@ -235,6 +253,8 @@ class BODConverter:
         if data_area is None:
             raise BODStructureError(f"Target node '{self.pnode}' not found.")
 
+        if verb is None:
+            verb = self._detect_verb(data_area)
         verb_node = self._find_direct_local(data_area, verb)
         if verb_node is None:
             raise BODStructureError(f"Verb '{verb}' not found under '{self.pnode}'.")
@@ -422,7 +442,7 @@ def to_ndjson(
 
 def to_records(
     bod_xml: Union[str, bytes],
-    verb: str,
+    verb: Optional[str],
     include_header: bool = False,
     rules: Optional[RulesLike] = None,
 ) -> List[Dict[str, Any]]:

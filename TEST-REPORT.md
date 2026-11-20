@@ -1,3 +1,18 @@
+# BODtoJSON 2.6.0 — local test report
+
+Date: 20 November 2026 (Europe/Helsinki, EET, UTC+2)
+
+Scope: `mapping.py` (`bod_to_json`, `bod_to_data`, `Mapper`), verb auto-detection, the CLI `to-json --rules <template>`, and `POST /map`.
+
+| Check | Result |
+| ----- | ----- |
+| `ruff check src tests scripts` / `mypy src` | Clean |
+| `pytest`, Python 3.13 `[api,dev]` | **330 passed**, coverage 99.1% |
+| User's ION template, unchanged, against a three-line PO with coding lines | Exact expected output (`tests/test_mapping.py::test_users_rules_one_call`) |
+| 2.5 flat rules via `bod_to_json` and `to_records(rules=)` | Unchanged behaviour |
+
+---
+
 # BODtoJSON 2.5.0 — local test report
 
 Date: 20 November 2026 (Europe/Helsinki, EET, UTC+2)

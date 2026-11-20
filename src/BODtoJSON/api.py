@@ -11,6 +11,7 @@ from BODtoJSON import (
     BODStructureError,
     BODTransformError,
     __version__,
+    bod_to_data,
     convert,
     json_to_bod,
     project,
@@ -68,6 +69,15 @@ class TransformRequest(BaseModel):
     verb: str = "Sync"
     rules: Dict[str, Any]
     include_header: bool = False
+
+
+class MapRequest(BaseModel):
+    xml: str
+    rules: Any
+    verb: Optional[str] = None
+    single: bool = False
+    include_header: bool = True
+    missing: Any = None
 
 
 class BODBuildRequest(BaseModel):
@@ -162,6 +172,25 @@ async def transform_bod_records(req: TransformRequest):
             req.xml, req.verb, include_header=req.include_header, rules=req.rules
         )
         return Response(content=json.dumps(items), media_type="application/json")
+    except CLIENT_ERRORS as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=400)
+    except Exception as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
+@app.post("/map")
+async def map_bod_to_template(req: MapRequest):
+    """One call: BOD -> your JSON shape (output template or flat rules)."""
+    try:
+        data = bod_to_data(
+            req.xml,
+            req.rules,
+            req.verb,
+            single=req.single,
+            include_header=req.include_header,
+            missing=req.missing,
+        )
+        return Response(content=json.dumps(data), media_type="application/json")
     except CLIENT_ERRORS as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=400)
     except Exception as e:

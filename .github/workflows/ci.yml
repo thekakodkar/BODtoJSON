@@ -44,12 +44,12 @@ jobs:
           python -m pip install -U pip
           pip install -e .
           pip install pytest pytest-cov
-      - name: Core tests without extras (mapper, parser, rules, reverse, CLI)
+      - name: Core tests without extras (mapper, parser, rules, mapping, reverse, CLI)
         # The optional FastAPI layer (api.py) cannot run without the [api] extra,
         # so it is left out of the coverage gate here; the full test job covers it.
         run: |
           printf '[run]\nsource = src/BODtoJSON\nomit = */BODtoJSON/api.py\n[report]\nfail_under = 90\nshow_missing = true\n' > .coveragerc-core
-          python -m pytest tests/test_mapper.py tests/test_safe_xml.py tests/test_transforms.py tests/test_reverse.py tests/test_cli.py -v -p no:cacheprovider --cov=BODtoJSON --cov-config=.coveragerc-core --cov-report=term-missing
+          python -m pytest tests/test_mapper.py tests/test_safe_xml.py tests/test_transforms.py tests/test_reverse.py tests/test_cli.py tests/test_mapping.py -v -p no:cacheprovider --cov=BODtoJSON --cov-config=.coveragerc-core --cov-report=term-missing
       - name: Assert zero runtime requires
         run: |
           python -c "import importlib.metadata as m; req=m.requires('BODtoJSON') or []; core=[r for r in req if 'extra ==' not in r]; assert core==[], core"

@@ -1,0 +1,49 @@
+{
+  "externalSystemId": {
+    "template": "{Sync_AccountingEntityID}_{PurchaseOrder_PurchaseOrderHeader_DisplayID}"
+  },
+  "isActive": true,
+  "companyId": {
+    "template": "company[{Sync_AccountingEntityID}]"
+  },
+  "amount": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount",
+  "currencyCode": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID",
+  "orderIdentifier": "PurchaseOrder_PurchaseOrderHeader_DisplayID",
+  "registerDate": "PurchaseOrder_PurchaseOrderHeader_OrderDateTime",
+  "supplier": "PurchaseOrder_PurchaseOrderHeader_SupplierParty_PartyIDs_ID",
+  "externalSystemMetadata": [
+    {}
+  ],
+  "purchaseOrderLines": {
+    "repeat": "PurchaseOrder_PurchaseOrderLine_*",
+    "item": {
+      "externalSystemId": {
+        "template": "{Sync_AccountingEntityID}_{PurchaseOrder_PurchaseOrderHeader_DisplayID}_{PurchaseOrder_PurchaseOrderLine_*_LineNumber}"
+      },
+      "isActive": true,
+      "amount": "PurchaseOrder_PurchaseOrderLine_*_ExtendedAmount",
+      "lineNumber": "PurchaseOrder_PurchaseOrderLine_*_LineNumber",
+      "quantity": "PurchaseOrder_PurchaseOrderLine_*_Quantity",
+      "unit": "PurchaseOrder_PurchaseOrderLine_*_Quantity_@unitCode",
+      "unitPrice": "PurchaseOrder_PurchaseOrderLine_*_UnitPrice_Amount",
+      "codingLines": {
+        "repeat": "CodingLine_*",
+        "item": {}
+      },
+      "deliveryLines": [
+        {
+          "isActive": true,
+          "externalSystemMetadata": [
+            {}
+          ]
+        }
+      ],
+      "externalSystemMetadata": [
+        {}
+      ]
+    }
+  },
+  "purchaseOrderComments": [
+    {}
+  ]
+}

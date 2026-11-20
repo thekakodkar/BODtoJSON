@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BODtoJSON v2.5.0 | Enterprise Documentation & Use Case Guide</title>
+    <title>BODtoJSON v2.6.0 | Enterprise Documentation & Use Case Guide</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -893,7 +893,7 @@
 <div class="mobile-topbar">
     <div class="mobile-brand">
         <span class="brand" style="font-size: 1.2rem;">BODtoJSON</span>
-        <span class="badge-version">v2.5.0</span>
+        <span class="badge-version">v2.6.0</span>
     </div>
     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open Navigation Menu">
         <svg viewBox="0 0 24 24">
@@ -913,7 +913,7 @@
             <div class="brand-top">
                 <div class="brand-title-wrap">
                     <span class="brand">BODtoJSON</span>
-                    <span class="badge-version">v2.5.0</span>
+                    <span class="badge-version">v2.6.0</span>
                 </div>
                 <button class="toggle-btn" id="sidebarToggle" title="Toggle Sidebar" aria-label="Toggle Sidebar">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -955,6 +955,12 @@
         <div class="nav-group">
             <div class="nav-title">All Use Cases</div>
             <ul>
+                <li>
+                    <a class="nav-link" href="#uc-ion-map" title="ION in 3 Lines: bod_to_json(xml, rules=TEMPLATE)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <span class="nav-label">&#9733; ION in 3 Lines</span>
+                    </a>
+                </li>
                 <li>
                     <a class="nav-link" href="#uc-ion-project" title="1. Infor ION API Mapping (project)">
                         <svg class="nav-icon" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
@@ -1028,6 +1034,12 @@
             <div class="nav-title">Reference</div>
             <ul>
                 <li>
+                    <a class="nav-link" href="#template-reference" title="Output Template Reference (bod_to_json)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                        <span class="nav-label">Template Reference</span>
+                    </a>
+                </li>
+                <li>
                     <a class="nav-link" href="#rules-reference" title="Transformation Rules Reference">
                         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                         <span class="nav-label">Rules Reference</span>
@@ -1069,7 +1081,7 @@
     <div class="content-container">
         <header class="hero" id="overview">
             <h1>BODtoJSON: Simplified Usage &amp; Complete Use Case Guide</h1>
-            <p>Transform complex Infor OAGIS XML Business Object Documents (BODs) into clean Python dictionaries, target API schemas, flat JSON, or streaming NDJSON in one line of code, using a <strong>zero-dependency stdlib parser</strong> for secure parsing. New in v2.5.0: <strong>if/else, case and concat transformation rules</strong>, and <strong>JSON &rarr; BOD</strong> reverse conversion.</p>
+            <p>Transform complex Infor OAGIS XML Business Object Documents (BODs) into clean Python dictionaries, target API schemas, flat JSON, or streaming NDJSON in one line of code, using a <strong>zero-dependency stdlib parser</strong> for secure parsing. New in v2.6.0: <strong>map a BOD to your own nested JSON in one call</strong> with <code class="inline">bod_to_json(xml, rules=TEMPLATE)</code>, including lines, conditions and merges. Since v2.5.0: if/else, case and concat rules, and <strong>JSON &rarr; BOD</strong> reverse conversion.</p>
 
             <div class="hero-actions">
                 <a class="hero-btn primary" href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">
@@ -1091,10 +1103,126 @@
                 <span class="pill">Infor ION Scripting Ready</span>
                 <span class="pill">Data Lakehouse &amp; RAG Optimized</span>
                 <span class="pill">Optional FastAPI Microservice</span>
+                <span class="pill">One-Call Template Mapping</span>
                 <span class="pill">If / Case / Concat Rules</span>
                 <span class="pill">JSON &rarr; BOD Reverse</span>
             </div>
         </header>
+
+        <!-- HEADLINE: ION IN 3 LINES -->
+        <section id="uc-ion-map">
+            <h2>Infor ION in 3 Lines: Map a BOD to Your Own JSON</h2>
+            <div class="use-case-card">
+                <div class="card-header">
+                    <span class="card-title">bod_to_json(input_var, rules=RULES)</span>
+                    <span class="tag green">New in v2.6.0</span>
+                </div>
+                <p>Write the JSON you want as a template and put BOD field paths where values go. One call returns one object per noun. Order lines (<code class="inline">repeat</code>), nested coding lines, header fields inside lines, if/case conditions and merges all work without helper code, <code class="inline">eval</code>, or third-party packages.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import bod_to_json
+RULES = {...}                                    # the JSON you want, with BOD paths as values
+output_var = bod_to_json(input_var, rules=RULES)  # JSON array, one object per noun</pre>
+                </div>
+                <p><strong>Complete ION script</strong> (<code class="inline">examples/ion_script.py</code>, template in <code class="inline">examples/ion_purchase_order_template.json</code>):</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import bod_to_json
+
+RULES = {
+    "externalSystemId": {"template": "{Sync_AccountingEntityID}_{PurchaseOrder_PurchaseOrderHeader_DisplayID}"},
+    "isActive": True,
+    "companyId": {"template": "company[{Sync_AccountingEntityID}]"},
+    "amount": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount",
+    "currencyCode": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID",
+    "orderIdentifier": "PurchaseOrder_PurchaseOrderHeader_DisplayID",
+    "registerDate": "PurchaseOrder_PurchaseOrderHeader_OrderDateTime",
+    "supplier": "PurchaseOrder_PurchaseOrderHeader_SupplierParty_PartyIDs_ID",
+    "externalSystemMetadata": [{}],
+    "purchaseOrderLines": {
+        "repeat": "PurchaseOrder_PurchaseOrderLine_*",
+        "item": {
+            "externalSystemId": {"template": "{Sync_AccountingEntityID}_{PurchaseOrder_PurchaseOrderHeader_DisplayID}_{PurchaseOrder_PurchaseOrderLine_*_LineNumber}"},
+            "isActive": True,
+            "amount": "PurchaseOrder_PurchaseOrderLine_*_ExtendedAmount",
+            "lineNumber": "PurchaseOrder_PurchaseOrderLine_*_LineNumber",
+            "quantity": "PurchaseOrder_PurchaseOrderLine_*_Quantity",
+            "unit": "PurchaseOrder_PurchaseOrderLine_*_Quantity_@unitCode",
+            "unitPrice": "PurchaseOrder_PurchaseOrderLine_*_UnitPrice_Amount",
+            "codingLines": {"repeat": "CodingLine_*", "item": {}},
+            "deliveryLines": [{"isActive": True, "externalSystemMetadata": [{}]}],
+            "externalSystemMetadata": [{}],
+        },
+    },
+    "purchaseOrderComments": [{}],
+}
+
+output_var = bod_to_json(input_var, rules=RULES)  # input_var / output_var are ION variables
+</pre>
+                </div>
+                <p><strong>Output</strong> (<code class="inline">single=True</code>, three-line order, abridged):</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>{
+  "externalSystemId": "3555_PSU000051",
+  "isActive": true,
+  "companyId": "company[3555]",
+  "amount": "1350.50",
+  "currencyCode": "EUR",
+  "orderIdentifier": "PSU000051",
+  "registerDate": "2026-11-19T10:15:00Z",
+  "supplier": "SUP0042",
+  "externalSystemMetadata": [
+    {}
+  ],
+  "purchaseOrderLines": [
+    {
+      "externalSystemId": "3555_PSU000051_10",
+      "isActive": true,
+      "amount": "500",
+      "lineNumber": "10",
+      "quantity": "5",
+      "unit": "EA",
+      "unitPrice": "100",
+      "codingLines": [
+        {},
+        {}
+      ],
+      "deliveryLines": [
+        {
+          "isActive": true,
+          "externalSystemMetadata": [
+            {}
+          ]
+        }
+      ],
+      "externalSystemMetadata": [
+        {}
+      ]
+    }
+    // ... lines 20 and 30 ...
+  ],
+  "purchaseOrderComments": [
+    {}
+  ]
+}</pre>
+                </div>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre># Conditions and merges go straight into the template (no helper code):
+"status": {"case": [{"when": {"eq": ["PurchaseOrder_PurchaseOrderHeader_Status_Code", "Open"]}, "then": "O"},
+                    {"when": {"in": ["PurchaseOrder_PurchaseOrderHeader_Status_Code", ["Closed", "Done"]]}, "then": "C"}],
+           "default": "?"},
+"band":   {"if": {"gt": ["PurchaseOrder_PurchaseOrderHeader_ExtendedAmount", 1000]}, "then": "high", "else": "low"},
+"label":  {"concat": ["PO-", "PurchaseOrder_PurchaseOrderHeader_DisplayID"]},
+"total":  {"number": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount"},
+"lines":  {"repeat": "PurchaseOrder_PurchaseOrderLine_*",
+           "where": {"gt": ["ExtendedAmount", 0]},          # optional filter; paths may be relative to the line
+           "item": {"no": "LineNumber", "item": "Item_ID"}}</pre>
+                </div>
+                <p><code class="inline">bod_to_data()</code> returns Python objects. <code class="inline">single=True</code> returns the first noun. <code class="inline">missing=""</code> returns empty strings instead of <code class="inline">null</code>. <code class="inline">rules</code> can be a dict, JSON text, or a file path, and <code class="inline">Mapper.from_file(path)</code> compiles a template once. CLI: <code class="inline">bodtojson to-json order.xml --rules template.json</code>. Full syntax: <a href="#template-reference">Output Template Reference</a>.</p>
+            </div>
+        </section>
 
         <!-- QUICK DECISION MATRIX -->
         <section>
@@ -1112,6 +1240,12 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr>
+                            <td><strong>Map a BOD to your own nested JSON (lines, conditions, merges)</strong></td>
+                            <td><code class="inline">bod_to_json(xml, rules=TEMPLATE)</code></td>
+                            <td><code class="inline">str</code> (JSON) / <code class="inline">bod_to_data</code>: <code class="inline">list[dict]</code></td>
+                            <td>Infor ION Scripting, REST payloads: the recommended starting point</td>
+                        </tr>
                         <tr>
                             <td><strong>Map BOD directly to a target REST API schema</strong></td>
                             <td><code class="inline">project(xml, verb, schema)</code></td>
@@ -1170,12 +1304,15 @@
                 <div class="code-wrapper">
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre># 1. Core library only (Ideal for Infor ION Scripting, AWS Lambda, ETL workers)
-pip install BODtoJSON==2.5.0
+pip install BODtoJSON==2.6.0
 
 # 2. Core library + FastAPI &amp; Uvicorn REST server
-pip install "BODtoJSON[api]==2.5.0"
+pip install "BODtoJSON[api]==2.6.0"
 
-# 2.5.0 also installs the `bodtojson` command (same as `python -m BODtoJSON`)</pre>
+# If PyPI does not list 2.6.0 yet, install the repository version:
+pip install "git+https://github.com/thekakodkar/BODtoJSON.git"
+
+# Also installs the `bodtojson` command (same as `python -m BODtoJSON`)</pre>
                 </div>
             </div>
         </section>
@@ -1366,6 +1503,7 @@ uvicorn BODtoJSON.api:app --host 0.0.0.0 --port 8000
 # POST /convert/ndjson?verb=Sync   (Body: raw text/plain XML -> application/x-ndjson)
 # POST /convert/json?verb=Sync     (Body: raw text/plain XML -> application/json)
 # POST /project                    (Body: {"xml": "...", "verb": "Sync", "schema_map": {...}, "rules": {...}?})
+# POST /map                        (Body: {"xml": "...", "rules": {...template...}, "single": false})
 # POST /transform                  (Body: {"xml": "...", "verb": "Sync", "rules": {...}, "include_header": false})
 # POST /convert/bod                (Body: {"data": [...records...], "verb": "Sync", "noun": "PurchaseOrder"?,
 #                                          "rules": {...}?, "action_code": "Replace"?} -> application/xml)
@@ -1575,6 +1713,77 @@ python -m BODtoJSON to-bod - &lt; records.json &gt; order.xml
             </div>
         </section>
 
+        <!-- OUTPUT TEMPLATE REFERENCE -->
+        <section id="template-reference">
+            <h2>Output Template Reference (bod_to_json)</h2>
+            <p>Used by <code class="inline">bod_to_json</code>, <code class="inline">bod_to_data</code>, <code class="inline">Mapper</code>, <code class="inline">POST /map</code> and <code class="inline">bodtojson to-json --rules</code>. In output fields a plain string is a path. In operator arguments and results (<code class="inline">then</code>/<code class="inline">else</code>/<code class="inline">default</code>, case values, <code class="inline">concat</code>/<code class="inline">coalesce</code> items), a plain string is a path when the field exists or the string looks like a path (contains <code class="inline">_ @ # *</code>); otherwise it is text, so <code class="inline">"then": "high"</code> works. 2.5 flat rules (<code class="inline">"$Path"</code>, <code class="inline">mode</code>/<code class="inline">drop</code>) are detected automatically and keep working.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>In the template</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">&quot;PurchaseOrder_..._DisplayID&quot;</code></td>
+                            <td>Field value. <code class="inline">_#text</code> is tried automatically, and a leading <code class="inline">$</code> or <code class="inline">{…}</code> is optional. Missing gives <code class="inline">null</code> (or <code class="inline">missing=</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">&quot;{A}_{B}&quot;</code> / <code class="inline">{&quot;template&quot;: &quot;company[{A}]&quot;}</code></td>
+                            <td>Placeholders filled from fields (missing gives <code class="inline">&quot;&quot;</code>). <code class="inline">{&quot;template&quot;: &quot;TEXT&quot;}</code> is constant text.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">true</code> <code class="inline">12</code> <code class="inline">null</code> <code class="inline">{}</code> <code class="inline">[{}]</code></td>
+                            <td>Copied as is.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{...}</code> / <code class="inline">[...]</code></td>
+                            <td>Nested output shape.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;literal&quot;: x}</code></td>
+                            <td><code class="inline">x</code> unchanged.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;path&quot;: &quot;P&quot;, &quot;default&quot;: d}</code></td>
+                            <td>Field with a default.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;repeat&quot;: &quot;PurchaseOrder_PurchaseOrderLine_*&quot;, &quot;item&quot;: {...}, &quot;where&quot;: cond}</code></td>
+                            <td>One item per repeated element (single unindexed element gives one item; none gives <code class="inline">[]</code>). Inside <code class="inline">item</code>, <code class="inline">*</code> is the current row and paths may be relative (<code class="inline">&quot;LineNumber&quot;</code>). A nested <code class="inline">&quot;CodingLine_*&quot;</code> is relative to the row. Header fields work everywhere.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;if&quot;: cond, &quot;then&quot;: x, &quot;else&quot;: y}</code></td>
+                            <td>If/else. A list of <code class="inline">{&quot;when&quot;, &quot;then&quot;}</code> gives else-if.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;case&quot;: [{&quot;when&quot;: cond, &quot;then&quot;: x}], &quot;default&quot;: y}</code></td>
+                            <td>First matching branch.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;case&quot;: &quot;Path&quot;, &quot;when&quot;: {&quot;A&quot;: x}, &quot;default&quot;: y}</code></td>
+                            <td>Map a field value.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;concat&quot;: [&quot;PO-&quot;, &quot;Path&quot;], &quot;sep&quot;: &quot;&quot;}</code> <code class="inline">{&quot;coalesce&quot;: [&quot;A&quot;, &quot;B&quot;]}</code></td>
+                            <td>Merge / first non-empty.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">upper lower trim number replace substr</code></td>
+                            <td>Helpers, e.g. <code class="inline">{&quot;number&quot;: &quot;Path&quot;, &quot;default&quot;: 0}</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;eq&quot;: [&quot;Path&quot;, &quot;value&quot;]}</code> or <code class="inline">{&quot;path&quot;: &quot;Path&quot;, &quot;op&quot;: &quot;eq&quot;, &quot;value&quot;: &quot;value&quot;}</code></td>
+                            <td>Conditions: <code class="inline">eq ne gt ge lt le in not_in contains not_contains starts_with ends_with exists missing empty not_empty</code>, plus <code class="inline">all</code> / <code class="inline">any</code> / <code class="inline">not</code>. The value is a literal; use <code class="inline">&quot;$Other_Path&quot;</code> to compare two fields.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Bad templates raise <code class="inline">BODTransformError</code> naming the location, for example <code class="inline">Rule at '$.purchaseOrderLines.repeat': repeat pattern must end with '_*'</code>.</p>
+        </section>
+
         <!-- TRANSFORMATION RULES REFERENCE -->
         <section id="rules-reference">
             <h2>Transformation Rules Reference</h2>
@@ -1704,6 +1913,21 @@ python -m BODtoJSON to-bod - &lt; records.json &gt; order.xml
                     </thead>
                     <tbody>
                         <tr>
+                            <td><code class="inline">bod_to_json(bod_xml, rules, verb=None, *, single=False, include_header=True, missing=None, kind="auto", separator="_", indent=None)</code></td>
+                            <td>
+                                <strong>rules</strong>: Output template (or 2.5 flat rules) as a dict, JSON text, or file path.<br>
+                                <strong>verb</strong>: Detected when <code class="inline">None</code>.<br>
+                                <strong>single</strong>: Return the first noun's object instead of a list.<br>
+                                <strong>missing</strong>: Value for absent fields (default <code class="inline">null</code>).
+                            </td>
+                            <td><code class="inline">str</code> (JSON)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">bod_to_data(...)</code> / <code class="inline">Mapper(rules).to_data(xml)</code> / <code class="inline">Mapper.from_file(path)</code></td>
+                            <td>Same options. Returns Python objects. <code class="inline">Mapper.apply(record)</code> maps one flattened record.</td>
+                            <td><code class="inline">list</code> / <code class="inline">dict</code></td>
+                        </tr>
+                        <tr>
                             <td><code class="inline">project(bod_xml, verb, schema, include_header=True, coerce_booleans=True, rules=None)</code></td>
                             <td>
                                 <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
@@ -1826,7 +2050,7 @@ python -m BODtoJSON to-bod - &lt; records.json &gt; order.xml
         </section>
 
         <footer>
-            <span>BODtoJSON v2.5.0 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | MIT License</span>
+            <span>BODtoJSON v2.6.0 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | MIT License</span>
             <div class="footer-links">
                 <a href="https://github.com/thekakodkar/BODtoJSON" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">PyPI</a>

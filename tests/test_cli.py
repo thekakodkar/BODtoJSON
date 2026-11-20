@@ -71,7 +71,7 @@ def test_errors_return_1(tmp_path, capsys):
     assert "bodtojson: error:" in capsys.readouterr().err
     assert main(["to-json", str(tmp_path / "missing.xml")]) == 1
     rules = tmp_path / "rules.json"
-    rules.write_text('{"a": {"nope": 1}}')
+    rules.write_text('{"a": {"if": {"bogus": ["x", 1]}, "then": 1}}')
     assert main(["to-json", str(XML), "--rules", str(rules)]) == 1
 
 
@@ -79,6 +79,25 @@ def test_usage_errors_exit_2():
     with pytest.raises(SystemExit) as e:
         main([])
     assert e.value.code == 2
+
+
+def test_to_json_with_template_rules(capsys):
+    tpl = EXAMPLES / "ion_purchase_order_template.json"
+    lines = DATA / "sync_PO_lines.xml"
+    assert main(["to-json", str(lines), "--rules", str(tpl)]) == 0
+    out = json.loads(capsys.readouterr().out)
+    assert isinstance(out, list) and len(out[0]["purchaseOrderLines"]) == 3
+    assert main(["to-json", str(XML), "--rules", str(tpl), "--single", "--missing-empty",
+                 "--indent", "2"]) == 0
+    single = json.loads(capsys.readouterr().out)
+    assert single["supplier"] == "" and single["purchaseOrderLines"] == []
+
+
+def test_to_json_detects_verb(tmp_path, capsys):
+    proc = tmp_path / "p.xml"
+    proc.write_text(XML.read_text().replace("<Sync>", "<Process>").replace("</Sync>", "</Process>"))
+    assert main(["to-json", str(proc), "--format", "records", "--include-header"]) == 0
+    assert json.loads(capsys.readouterr().out)[0]["Process_TenantID"] == "TEST_TST"
 
 
 def test_python_dash_m(monkeypatch, capsys):

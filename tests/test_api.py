@@ -234,3 +234,29 @@ def test_api_new_endpoints_500(monkeypatch, xml_loader):
     xml = xml_loader.load("sync_PO_PSU000049.xml")
     assert client.post("/transform", json={"xml": xml, "rules": {}}).status_code == 500
     assert client.post("/convert/bod", json={"data": {}}).status_code == 500
+
+
+# ---------------------------------------------------------------- 2.6.0
+def test_api_map_template():
+    from pathlib import Path
+
+    root = Path(__file__).parent
+    xml = (root / "data" / "sync_PO_lines.xml").read_text()
+    tpl = (root.parent / "examples" / "ion_purchase_order_template.json").read_text()
+    r = client.post("/map", json={"xml": xml, "rules": tpl, "single": True, "missing": ""})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["externalSystemId"] == "3555_PSU000051"
+    assert [ln["lineNumber"] for ln in body["purchaseOrderLines"]] == ["10", "20", "30"]
+    bad = client.post("/map", json={"xml": xml, "rules": {"a": {"repeat": "X"}}})
+    assert bad.status_code == 400
+
+
+def test_api_map_500(monkeypatch):
+    import BODtoJSON.api as api_mod
+
+    def boom(*a, **k):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(api_mod, "bod_to_data", boom)
+    assert client.post("/map", json={"xml": "<x/>", "rules": {}}).status_code == 500

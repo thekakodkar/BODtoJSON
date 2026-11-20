@@ -3,6 +3,7 @@ Command-line interface (stdlib ``argparse`` only).
 
 Examples::
 
+    bodtojson to-json order.xml --rules ion_template.json      # map to your JSON shape
     bodtojson to-json order.xml --verb Sync --rules rules.json
     bodtojson to-json order.xml --format ndjson --include-header
     bodtojson to-bod order.json --verb Sync --noun PurchaseOrder --action-code Replace
@@ -18,6 +19,7 @@ from typing import List, Optional
 
 from . import __version__
 from .mapper import BODConverter, BODParseError, BODStructureError
+from .mapping import Mapper
 from .reverse import INFOR_OAGIS_NS
 from .transforms import BODTransformError
 
@@ -55,14 +57,28 @@ def build_parser() -> argparse.ArgumentParser:
 
     fwd = sub.add_parser("to-json", help="BOD XML -> flattened JSON / NDJSON / records")
     fwd.add_argument("input", help="XML file path, or - for stdin")
-    fwd.add_argument("--verb", default="Sync", help="Verb element under DataArea (default Sync)")
+    fwd.add_argument(
+        "--verb", default=None, help="Verb element under DataArea (default: detected)"
+    )
     fwd.add_argument(
         "--format",
         choices=("json", "ndjson", "records"),
         default="json",
         help="json = first noun object; ndjson = one line per noun; records = JSON array",
     )
-    fwd.add_argument("--rules", help="Transformation rules JSON file")
+    fwd.add_argument(
+        "--rules",
+        help="Rules JSON file: an output template (mapped JSON, one item per noun) "
+        "or 2.5 flat rules",
+    )
+    fwd.add_argument(
+        "--single", action="store_true", help="Template rules: output the first noun only"
+    )
+    fwd.add_argument(
+        "--missing-empty",
+        action="store_true",
+        help="Template rules: missing fields become \"\" instead of null",
+    )
     fwd.add_argument(
         "--include-header",
         action="store_true",
@@ -104,21 +120,35 @@ def main(argv: Optional[List[str]] = None) -> int:
         rules = _load_rules(args.rules)
         data = _read(args.input)
         if args.command == "to-json":
-            if args.format == "json":
-                text = conv.to_json(data, args.verb, raise_on_error=True, rules=rules)
+            verb = args.verb or conv.detect_verb(data)
+            mapper = (
+                Mapper(
+                    rules,
+                    separator=args.separator,
+                    missing="" if args.missing_empty else None,
+                )
+                if rules is not None
+                else None
+            )
+            if mapper is not None and mapper.kind == "template":
+                text = mapper.to_json(
+                    data, verb, single=args.single, indent=args.indent, converter=conv
+                )
+            elif args.format == "json":
+                text = conv.to_json(data, verb, raise_on_error=True, rules=rules)
                 if args.indent is not None:
                     text = json.dumps(json.loads(text), indent=args.indent)
             elif args.format == "ndjson":
                 text = conv.to_ndjson(
                     data,
-                    args.verb,
+                    verb,
                     raise_on_error=True,
                     rules=rules,
                     include_header=args.include_header,
                 )
             else:
                 recs = conv.to_records(
-                    data, args.verb, include_header=args.include_header, rules=rules
+                    data, verb, include_header=args.include_header, rules=rules
                 )
                 text = json.dumps(recs, indent=args.indent)
         else:

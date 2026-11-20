@@ -462,13 +462,7 @@ class TransformRules:
 
     @staticmethod
     def _norm_op(cond: Mapping[str, Any]) -> str:
-        raw = cond.get("op", "eq" if "value" in cond else "not_empty")
-        if not isinstance(raw, str):
-            raise BODTransformError("'op' must be a string.")
-        op = _OP_ALIASES.get(raw, raw)
-        if op not in _OPS:
-            raise BODTransformError(f"Unknown operator '{raw}'.")
-        return op
+        return normalize_op(cond.get("op", "eq" if "value" in cond else "not_empty"))
 
     def _collect_paths(self, expr: Any) -> List[str]:
         found: List[str] = []
@@ -670,69 +664,86 @@ class TransformRules:
             exists = left is not None
         op = self._norm_op(cond)
         ic = cond.get("ignore_case", False)
-
-        if op == "exists":
-            return exists
-        if op == "missing":
-            return not exists
-        if op == "empty":
-            return _is_empty(left)
-        if op == "not_empty":
-            return not _is_empty(left)
-
+        if op in _UNARY_OPS:
+            return compare(op, left, exists, None, ic)
         raw_value = cond["value"]
         if op in ("in", "not_in"):
-            options = [self._eval(v, lookup, b) for v in raw_value]
-            hit = any(self._equals(left, o, ic) for o in options)
-            return hit if op == "in" else not hit
+            right: Any = [self._eval(v, lookup, b) for v in raw_value]
+        else:
+            right = self._eval(raw_value, lookup, b)
+        return compare(op, left, exists, right, ic)
 
-        right = self._eval(raw_value, lookup, b)
-        if op == "eq":
-            return self._equals(left, right, ic)
-        if op == "ne":
-            return not self._equals(left, right, ic)
 
-        lt, rt = _to_text(left), _to_text(right)
-        if ic:
-            lt, rt = lt.lower(), rt.lower()
-        if op == "contains":
-            return rt in lt
-        if op == "not_contains":
-            return rt not in lt
-        if op == "starts_with":
-            return lt.startswith(rt)
-        if op == "ends_with":
-            return lt.endswith(rt)
 
-        # Ordering: numeric when both sides are numbers, else text.
+def _equals(left: Any, right: Any, ignore_case: bool) -> bool:
+    if isinstance(right, bool) or isinstance(left, bool):
+        return _to_text(left).strip().lower() == _to_text(right).strip().lower()
+    if isinstance(right, (int, float)) or isinstance(left, (int, float)):
         ln, rn = _to_number(left), _to_number(right)
         if ln is not None and rn is not None:
-            a: Any = ln
-            c: Any = rn
-        elif left is None or right is None:
-            return False
-        else:
-            a, c = lt, rt
-        if op == "gt":
-            return bool(a > c)
-        if op == "ge":
-            return bool(a >= c)
-        if op == "lt":
-            return bool(a < c)
-        return bool(a <= c)  # le
+            return ln == rn
+    lt, rt = _to_text(left), _to_text(right)
+    if ignore_case:
+        return lt.lower() == rt.lower()
+    return lt == rt
 
-    @staticmethod
-    def _equals(left: Any, right: Any, ignore_case: bool) -> bool:
-        if isinstance(right, bool) or isinstance(left, bool):
-            return _to_text(left).strip().lower() == _to_text(right).strip().lower()
-        if isinstance(right, (int, float)) or isinstance(left, (int, float)):
-            ln, rn = _to_number(left), _to_number(right)
-            if ln is not None and rn is not None:
-                return ln == rn
-        lt, rt = _to_text(left), _to_text(right)
-        if ignore_case:
-            return lt.lower() == rt.lower()
-        return lt == rt
+
+def normalize_op(raw: Any) -> str:
+    """Return the canonical operator name, or raise BODTransformError."""
+    if not isinstance(raw, str):
+        raise BODTransformError("'op' must be a string.")
+    op = _OP_ALIASES.get(raw, raw)
+    if op not in _OPS:
+        raise BODTransformError(f"Unknown operator '{raw}'.")
+    return op
+
+
+def compare(op: str, left: Any, exists: bool, right: Any, ignore_case: bool = False) -> bool:
+    """Evaluate one comparison. ``right`` is a list for ``in`` / ``not_in``."""
+    if op == "exists":
+        return exists
+    if op == "missing":
+        return not exists
+    if op == "empty":
+        return _is_empty(left)
+    if op == "not_empty":
+        return not _is_empty(left)
+    if op in ("in", "not_in"):
+        hit = any(_equals(left, o, ignore_case) for o in right)
+        return hit if op == "in" else not hit
+    if op == "eq":
+        return _equals(left, right, ignore_case)
+    if op == "ne":
+        return not _equals(left, right, ignore_case)
+
+    lt, rt = _to_text(left), _to_text(right)
+    if ignore_case:
+        lt, rt = lt.lower(), rt.lower()
+    if op == "contains":
+        return rt in lt
+    if op == "not_contains":
+        return rt not in lt
+    if op == "starts_with":
+        return lt.startswith(rt)
+    if op == "ends_with":
+        return lt.endswith(rt)
+
+    # Ordering: numeric when both sides are numbers, else text.
+    ln, rn = _to_number(left), _to_number(right)
+    if ln is not None and rn is not None:
+        a: Any = ln
+        c: Any = rn
+    elif left is None or right is None:
+        return False
+    else:
+        a, c = lt, rt
+    if op == "gt":
+        return bool(a > c)
+    if op == "ge":
+        return bool(a >= c)
+    if op == "lt":
+        return bool(a < c)
+    return bool(a <= c)  # le
 
 
 def compile_rules(
