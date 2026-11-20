@@ -9,6 +9,7 @@ recursive-include tests *.py
 recursive-include tests/data *
 recursive-include docs *
 recursive-include scripts *
+recursive-include examples *
 
 global-exclude *.pyc
 global-exclude __pycache__

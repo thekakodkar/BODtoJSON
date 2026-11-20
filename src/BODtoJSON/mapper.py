@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Union
 from xml.etree.ElementTree import ParseError
 
 from .safe_xml import SafeXMLError, parse_xml
+from .transforms import RulesLike, TransformRules, compile_rules
 
 
 class BODParseError(Exception):
@@ -56,6 +57,12 @@ class BODConverter:
         except ParseError as e:
             raise BODParseError(f"Failed to parse XML: {e}") from e
 
+    def _rules(self, rules: Optional[RulesLike]) -> Optional[TransformRules]:
+        """Compile rules (dict / JSON text / TransformRules) with this separator."""
+        if rules is None:
+            return None
+        return compile_rules(rules, separator=self.separator)
+
     @staticmethod
     def _local_name(tag: str) -> str:
         """Return the local part of an ElementTree tag, ignoring namespaces."""
@@ -99,7 +106,7 @@ class BODConverter:
                 f"Verb '{verb}' is not a direct child of '{self.pnode}'."
             ) from e
 
-    def _prepare_noun_element(self, bod_xml: str, verb: str):
+    def _prepare_noun_element(self, bod_xml: Union[str, bytes], verb: str):
         """Extract the first noun under DataArea after removing the verb."""
         root = self._parse(bod_xml)
         data_area = self._find_direct_local(root, self.pnode)
@@ -209,12 +216,20 @@ class BODConverter:
         return context
 
     def to_records(
-        self, bod_xml: str, verb: str, include_header: bool = False
+        self,
+        bod_xml: Union[str, bytes],
+        verb: str,
+        include_header: bool = False,
+        rules: Optional[RulesLike] = None,
     ) -> List[Dict[str, Any]]:
         """
         Parses OAGIS XML into a list of flattened dictionaries (one per noun).
-        Raises BODParseError or BODStructureError on failure.
+
+        ``rules`` (dict, JSON text, or TransformRules) are applied to each
+        record after flattening (and after header merge when include_header).
+        Raises BODParseError, BODStructureError, or BODTransformError on failure.
         """
+        compiled = self._rules(rules)
         root = self._parse(bod_xml)
         data_area = self._find_direct_local(root, self.pnode)
         if data_area is None:
@@ -242,18 +257,26 @@ class BODConverter:
             else:
                 records.append(flat_record)
 
+        if compiled is not None:
+            records = compiled.apply_many(records)
         return records
 
     def project(
         self,
-        bod_xml: str,
+        bod_xml: Union[str, bytes],
         verb: str,
         schema: Dict[str, Any],
         include_header: bool = True,
         coerce_booleans: bool = True,
+        rules: Optional[RulesLike] = None,
     ) -> List[Dict[str, Any]]:
-        """Projects flattened records into a target schema."""
-        records = self.to_records(bod_xml, verb, include_header=include_header)
+        """Projects flattened records into a target schema.
+
+        Optional ``rules`` run first, so the schema can reference rule outputs.
+        """
+        records = self.to_records(
+            bod_xml, verb, include_header=include_header, rules=rules
+        )
         projected_items: List[Dict[str, Any]] = []
 
         class _SafeDict(dict):
@@ -293,17 +316,25 @@ class BODConverter:
         return projected_items
 
     def to_json(
-        self, bod_xml: str, verb: str, raise_on_error: bool = False
+        self,
+        bod_xml: Union[str, bytes],
+        verb: str,
+        raise_on_error: bool = False,
+        rules: Optional[RulesLike] = None,
     ) -> str:
         """
         Converts OAGIS XML to a single flat JSON string (first noun only).
 
         By default returns an error JSON object on failure (backward compatible).
         Set raise_on_error=True to raise BODParseError / BODStructureError instead.
+        Invalid ``rules`` always raise BODTransformError (a configuration error).
         """
+        compiled = self._rules(rules)
         try:
             noun_elem = self._prepare_noun_element(bod_xml, verb)
             flattened = self._flatten_element(noun_elem)
+            if compiled is not None:
+                flattened = compiled.apply(flattened)
             return json.dumps(flattened)
         except (BODParseError, BODStructureError) as e:
             if raise_on_error:
@@ -311,15 +342,24 @@ class BODConverter:
             return json.dumps({"status": "error", "message": str(e)})
 
     def to_ndjson(
-        self, bod_xml: str, verb: str, raise_on_error: bool = False
+        self,
+        bod_xml: Union[str, bytes],
+        verb: str,
+        raise_on_error: bool = False,
+        rules: Optional[RulesLike] = None,
+        include_header: bool = False,
     ) -> str:
         """
         Converts OAGIS XML into NDJSON (one record per noun).
 
         Default returns error JSON on failure. raise_on_error=True raises.
+        ``include_header`` adds ApplicationArea/verb fields to every line.
         """
+        compiled = self._rules(rules)
         try:
-            records = self.to_records(bod_xml, verb, include_header=False)
+            records = self.to_records(
+                bod_xml, verb, include_header=include_header, rules=compiled
+            )
             lines = [
                 json.dumps(rec, separators=(",", ":")).strip() for rec in records
             ]
@@ -329,7 +369,21 @@ class BODConverter:
                 raise
             return json.dumps({"status": "error", "message": str(e)}) + "\n"
 
-    def convert(self, bod_xml: str, verb: str) -> str:
+    def from_json(
+        self, data: Any, verb: str = "Sync", noun: Optional[str] = None, **kwargs: Any
+    ) -> str:
+        """Build BOD XML from JSON (reverse conversion); see ``json_to_bod``.
+
+        Uses this converter's separator, max_size, and max_depth.
+        """
+        from .reverse import json_to_bod
+
+        kwargs.setdefault("separator", self.separator)
+        kwargs.setdefault("max_size", self.max_size)
+        kwargs.setdefault("max_depth", self.max_depth)
+        return json_to_bod(data, verb, noun, **kwargs)
+
+    def convert(self, bod_xml: Union[str, bytes], verb: str) -> str:
         """Legacy method. Emits DeprecationWarning and calls to_json()."""
         warnings.warn(
             "The 'convert' function is deprecated and will be removed in v3.0.0. "
@@ -343,29 +397,46 @@ class BODConverter:
 # -------------------------------------------------------------------
 # Top-Level Facade Functions
 # -------------------------------------------------------------------
-def to_json(bod_xml: str, verb: str, raise_on_error: bool = False) -> str:
+def to_json(
+    bod_xml: Union[str, bytes],
+    verb: str,
+    raise_on_error: bool = False,
+    rules: Optional[RulesLike] = None,
+) -> str:
     """Primary API for Standard JSON conversion (first noun only)."""
-    return BODConverter().to_json(bod_xml, verb, raise_on_error=raise_on_error)
+    return BODConverter().to_json(bod_xml, verb, raise_on_error=raise_on_error, rules=rules)
 
 
-def to_ndjson(bod_xml: str, verb: str, raise_on_error: bool = False) -> str:
+def to_ndjson(
+    bod_xml: Union[str, bytes],
+    verb: str,
+    raise_on_error: bool = False,
+    rules: Optional[RulesLike] = None,
+    include_header: bool = False,
+) -> str:
     """Primary API for NDJSON conversion (all nouns)."""
-    return BODConverter().to_ndjson(bod_xml, verb, raise_on_error=raise_on_error)
+    return BODConverter().to_ndjson(
+        bod_xml, verb, raise_on_error=raise_on_error, rules=rules, include_header=include_header
+    )
 
 
 def to_records(
-    bod_xml: str, verb: str, include_header: bool = False
+    bod_xml: Union[str, bytes],
+    verb: str,
+    include_header: bool = False,
+    rules: Optional[RulesLike] = None,
 ) -> List[Dict[str, Any]]:
     """Converts OAGIS XML into a native Python list of flattened dictionaries."""
-    return BODConverter().to_records(bod_xml, verb, include_header=include_header)
+    return BODConverter().to_records(bod_xml, verb, include_header=include_header, rules=rules)
 
 
 def project(
-    bod_xml: str,
+    bod_xml: Union[str, bytes],
     verb: str,
     schema: Dict[str, Any],
     include_header: bool = True,
     coerce_booleans: bool = True,
+    rules: Optional[RulesLike] = None,
 ) -> List[Dict[str, Any]]:
     """Extracts and maps OAGIS XML records directly into a target schema dictionary."""
     return BODConverter().project(
@@ -374,10 +445,11 @@ def project(
         schema,
         include_header=include_header,
         coerce_booleans=coerce_booleans,
+        rules=rules,
     )
 
 
-def convert(bod_xml: str, verb: str) -> str:
+def convert(bod_xml: Union[str, bytes], verb: str) -> str:
     """
     LEGACY FUNCTION: Maintained for backward compatibility.
     Maps to to_json() and emits DeprecationWarning.

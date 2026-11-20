@@ -153,3 +153,84 @@ def test_legacy_convert_error_json_is_400(xml_loader):
     )
     assert response.status_code == 400
     assert response.json()["status"] == "error"
+
+
+# ---------------------------------------------------------------- 2.5.0
+TRANSFORM_RULES = {
+    "rules": {
+        "orderRef": {"concat": ["PO-", "$PurchaseOrder_PurchaseOrderHeader_DisplayID"]},
+        "currency": {
+            "case": "$PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID",
+            "when": {"EUR": "Euro"},
+            "default": "Other",
+        },
+    },
+    "mode": "only",
+}
+
+
+def test_api_transform(xml_loader):
+    xml = xml_loader.load("sync_PO_PSU000049.xml")
+    r = client.post("/transform", json={"xml": xml, "verb": "Sync", "rules": TRANSFORM_RULES})
+    assert r.status_code == 200
+    assert r.json() == [{"orderRef": "PO-PSU000049", "currency": "Euro"}]
+
+
+def test_api_transform_bad_rules_400(xml_loader):
+    xml = xml_loader.load("sync_PO_PSU000049.xml")
+    r = client.post("/transform", json={"xml": xml, "rules": {"a": {"nope": 1}}})
+    assert r.status_code == 400
+    assert r.json()["status"] == "error"
+
+
+def test_api_project_with_rules(xml_loader):
+    xml = xml_loader.load("sync_PO_PSU000049.xml")
+    r = client.post(
+        "/project",
+        json={"xml": xml, "schema_map": {"ref": "orderRef"}, "rules": TRANSFORM_RULES},
+    )
+    assert r.status_code == 200
+    assert r.json() == [{"ref": "PO-PSU000049"}]
+
+
+def test_api_convert_bod_round_trip(xml_loader):
+    from BODtoJSON import to_records
+
+    xml = xml_loader.load("sync_PO_PSU000049.xml")
+    recs = to_records(xml, "Sync", include_header=True)
+    r = client.post("/convert/bod", json={"data": recs, "verb": "Sync", "version_id": "2.14.x"})
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("application/xml")
+    assert to_records(r.text, "Sync", include_header=True) == recs
+
+
+def test_api_convert_bod_options_and_errors():
+    r = client.post(
+        "/convert/bod",
+        json={
+            "data": {"PurchaseOrderHeader": {"DisplayID": "N1"}},
+            "noun": "PurchaseOrder",
+            "action_code": "Replace",
+            "namespace": "",
+            "release_id": "",
+            "include_application_area": False,
+            "pretty": False,
+        },
+    )
+    assert r.status_code == 200
+    assert r.text.startswith('<?xml version="1.0" encoding="UTF-8"?><SyncPurchaseOrder>')
+    bad = client.post("/convert/bod", json={"data": {"Sync_TenantID": "x"}})
+    assert bad.status_code == 400
+
+
+def test_api_new_endpoints_500(monkeypatch, xml_loader):
+    import BODtoJSON.api as api_mod
+
+    def boom(*a, **k):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(api_mod, "to_records", boom)
+    monkeypatch.setattr(api_mod, "json_to_bod", boom)
+    xml = xml_loader.load("sync_PO_PSU000049.xml")
+    assert client.post("/transform", json={"xml": xml, "rules": {}}).status_code == 500
+    assert client.post("/convert/bod", json={"data": {}}).status_code == 500

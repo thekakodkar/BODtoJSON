@@ -1,0 +1,26 @@
+{
+  "description": "Example BOD -> JSON rules for SyncPurchaseOrder (use with include_header=True)",
+  "mode": "merge",
+  "drop": ["ApplicationArea_*"],
+  "rules": {
+    "orderReference": {"concat": ["PO-", "$PurchaseOrder_PurchaseOrderHeader_DocumentID_ID"]},
+    "company": {"template": "company[{Sync_AccountingEntityID}]"},
+    "currencyName": {
+      "case": "$PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID",
+      "when": {"EUR": "Euro", "USD": "US Dollar", "GBP": "Pound Sterling"},
+      "default": "Other"
+    },
+    "amountBand": {
+      "if": [
+        {"when": {"path": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount", "op": "ge", "value": 10000}, "then": "high"},
+        {"when": {"path": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount", "op": "ge", "value": 1000}, "then": "medium"}
+      ],
+      "else": "low"
+    },
+    "noteText": {"coalesce": ["$PurchaseOrder_PurchaseOrderHeader_Note", "n/a"]},
+    "PurchaseOrder_PurchaseOrderLine_*_lineKey": {
+      "concat": ["$PurchaseOrder_PurchaseOrderHeader_DisplayID", "$PurchaseOrder_PurchaseOrderLine_*_LineNumber"],
+      "sep": "-"
+    }
+  }
+}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BODtoJSON v2.4.0 | Enterprise Documentation & Use Case Guide</title>
+    <title>BODtoJSON v2.5.0 | Enterprise Documentation & Use Case Guide</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -499,6 +499,13 @@
             letter-spacing: -0.02em;
         }
 
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 1.4rem 0 0.6rem;
+        }
+
         p {
             margin-bottom: 1rem;
             color: var(--text-secondary);
@@ -886,7 +893,7 @@
 <div class="mobile-topbar">
     <div class="mobile-brand">
         <span class="brand" style="font-size: 1.2rem;">BODtoJSON</span>
-        <span class="badge-version">v2.4.0</span>
+        <span class="badge-version">v2.5.0</span>
     </div>
     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open Navigation Menu">
         <svg viewBox="0 0 24 24">
@@ -906,7 +913,7 @@
             <div class="brand-top">
                 <div class="brand-title-wrap">
                     <span class="brand">BODtoJSON</span>
-                    <span class="badge-version">v2.4.0</span>
+                    <span class="badge-version">v2.5.0</span>
                 </div>
                 <button class="toggle-btn" id="sidebarToggle" title="Toggle Sidebar" aria-label="Toggle Sidebar">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -996,12 +1003,36 @@
                         <span class="nav-label">8. Legacy Migration</span>
                     </a>
                 </li>
+                <li>
+                    <a class="nav-link" href="#uc-rules" title="9. Transformation Rules (if/else, case, concat)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                        <span class="nav-label">9. Transform Rules</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-reverse" title="10. JSON to BOD (json_to_bod)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                        <span class="nav-label">10. JSON &rarr; BOD</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="#uc-cli" title="11. Command Line (bodtojson)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                        <span class="nav-label">11. Command Line</span>
+                    </a>
+                </li>
             </ul>
         </div>
 
         <div class="nav-group">
             <div class="nav-title">Reference</div>
             <ul>
+                <li>
+                    <a class="nav-link" href="#rules-reference" title="Transformation Rules Reference">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span class="nav-label">Rules Reference</span>
+                    </a>
+                </li>
                 <li>
                     <a class="nav-link" href="#api-reference" title="Complete Method Reference">
                         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -1038,7 +1069,7 @@
     <div class="content-container">
         <header class="hero" id="overview">
             <h1>BODtoJSON: Simplified Usage &amp; Complete Use Case Guide</h1>
-            <p>Transform complex Infor OAGIS XML Business Object Documents (BODs) into clean Python dictionaries, target API schemas, flat JSON, or streaming NDJSON in one line of code, using a <strong>zero-dependency stdlib parser</strong> for secure parsing.</p>
+            <p>Transform complex Infor OAGIS XML Business Object Documents (BODs) into clean Python dictionaries, target API schemas, flat JSON, or streaming NDJSON in one line of code, using a <strong>zero-dependency stdlib parser</strong> for secure parsing. New in v2.5.0: <strong>if/else, case and concat transformation rules</strong>, and <strong>JSON &rarr; BOD</strong> reverse conversion.</p>
 
             <div class="hero-actions">
                 <a class="hero-btn primary" href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">
@@ -1060,6 +1091,8 @@
                 <span class="pill">Infor ION Scripting Ready</span>
                 <span class="pill">Data Lakehouse &amp; RAG Optimized</span>
                 <span class="pill">Optional FastAPI Microservice</span>
+                <span class="pill">If / Case / Concat Rules</span>
+                <span class="pill">JSON &rarr; BOD Reverse</span>
             </div>
         </header>
 
@@ -1104,6 +1137,18 @@
                             <td>Document stores, webhook payloads, logging</td>
                         </tr>
                         <tr>
+                            <td><strong>Apply if/else, case, or merge rules before the JSON is produced</strong></td>
+                            <td><code class="inline">to_records(xml, verb, rules=RULES)</code></td>
+                            <td><code class="inline">list[dict]</code></td>
+                            <td>Code mapping, derived fields, concatenated IDs (also on <code class="inline">to_json</code>, <code class="inline">to_ndjson</code>, <code class="inline">project</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Build a BOD from JSON (reverse)</strong></td>
+                            <td><code class="inline">json_to_bod(data, verb, noun)</code></td>
+                            <td><code class="inline">str</code> (XML)</td>
+                            <td>Publishing to Infor ION from REST/JSON sources, round trips</td>
+                        </tr>
+                        <tr>
                             <td><strong>Expose conversion as an HTTP microservice</strong></td>
                             <td><code class="inline">uvicorn BODtoJSON.api:app</code></td>
                             <td>HTTP Response</td>
@@ -1125,10 +1170,15 @@
                 <div class="code-wrapper">
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre># 1. Core library only (Ideal for Infor ION Scripting, AWS Lambda, ETL workers)
-pip install BODtoJSON==2.4.0
+pip install BODtoJSON==2.5.0
 
 # 2. Core library + FastAPI &amp; Uvicorn REST server
-pip install "BODtoJSON[api]==2.4.0"</pre>
+pip install "BODtoJSON[api]==2.5.0"
+
+# If PyPI does not list 2.5.0 yet, install the repository version:
+pip install "git+https://github.com/thekakodkar/BODtoJSON.git"
+
+# 2.5.0 also installs the `bodtojson` command (same as `python -m BODtoJSON`)</pre>
                 </div>
             </div>
         </section>
@@ -1318,7 +1368,10 @@ uvicorn BODtoJSON.api:app --host 0.0.0.0 --port 8000
 # Available Endpoints:
 # POST /convert/ndjson?verb=Sync   (Body: raw text/plain XML -> application/x-ndjson)
 # POST /convert/json?verb=Sync     (Body: raw text/plain XML -> application/json)
-# POST /project                    (Body: {"xml": "...", "verb": "Sync", "schema_map": {...}})
+# POST /project                    (Body: {"xml": "...", "verb": "Sync", "schema_map": {...}, "rules": {...}?})
+# POST /transform                  (Body: {"xml": "...", "verb": "Sync", "rules": {...}, "include_header": false})
+# POST /convert/bod                (Body: {"data": [...records...], "verb": "Sync", "noun": "PurchaseOrder"?,
+#                                          "rules": {...}?, "action_code": "Replace"?} -> application/xml)
 # GET  /health                     (Service health check)</pre>
                 </div>
             </div>
@@ -1338,6 +1391,306 @@ uvicorn BODtoJSON.api:app --host 0.0.0.0 --port 8000
 result = convert(xml_payload, verb="Sync")</pre>
                 </div>
             </div>
+
+            <!-- USE CASE 9 -->
+            <div class="use-case-card" id="uc-rules">
+                <div class="card-header">
+                    <span class="card-title">Use Case 9: Transformation Rules (if/else, case, concat before JSON)</span>
+                    <span class="tag green">New in v2.5.0</span>
+                </div>
+                <p>Derive or rewrite fields from BOD elements and attributes <em>before</em> the JSON is produced, using a declarative rules object (a dict, or JSON text from a file or an ION variable). Pass it as <code class="inline">rules=</code> to <code class="inline">to_json</code>, <code class="inline">to_ndjson</code>, <code class="inline">to_records</code> or <code class="inline">project</code>. <code class="inline">"$Path"</code> reads a flattened key and any other string is a literal. Rules are interpreted and never <code class="inline">eval</code>-ed, so they are safe in Infor ION.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>import json
+from BODtoJSON import to_json, to_records
+
+RULES = {
+    "mode": "merge",                 # keep all flattened fields; "only" = rule outputs only
+    "drop": ["ApplicationArea_*"],   # optional glob patterns removed afterwards
+    "rules": {
+        # MERGE: literal prefix + element value
+        "orderRef": {"concat": ["PO-", "$PurchaseOrder_PurchaseOrderHeader_DocumentID_ID"]},
+
+        # MERGE: two elements with a separator (empty parts are skipped)
+        "contactName": {"concat": ["$PurchaseOrder_PurchaseOrderHeader_Contact_FirstName",
+                                   "$PurchaseOrder_PurchaseOrderHeader_Contact_LastName"],
+                        "sep": " "},
+
+        # TEMPLATE: placeholders are flattened keys (header keys need include_header=True)
+        "company": {"template": "company[{Sync_AccountingEntityID}]"},
+
+        # CASE / SWITCH on an attribute value
+        "currencyName": {"case": "$PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID",
+                         "when": {"EUR": "Euro", "USD": "US Dollar"},
+                         "default": "Other"},
+
+        # IF / ELSE-IF / ELSE based on another element
+        "amountBand": {
+            "if": [
+                {"when": {"path": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount", "op": "ge", "value": 10000},
+                 "then": "high"},
+                {"when": {"path": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount", "op": "ge", "value": 1000},
+                 "then": "medium"},
+            ],
+            "else": "low",
+        },
+
+        # Simple IF with combined conditions
+        "needsApproval": {
+            "if": {"all": [
+                {"path": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount", "op": "gt", "value": 2000},
+                {"path": "Sync_AccountingEntityID", "op": "in", "value": ["3555", "3556"]},
+            ]},
+            "then": True,
+            "else": False,
+        },
+
+        # PER LINE: '*' binds to each repeated PurchaseOrderLine
+        "PurchaseOrder_PurchaseOrderLine_*_lineKey": {
+            "concat": ["$PurchaseOrder_PurchaseOrderHeader_DisplayID",
+                       "$PurchaseOrder_PurchaseOrderLine_*_LineNumber"],
+            "sep": "-",
+        },
+    },
+}
+
+records = to_records(xml_payload, verb="Sync", include_header=True, rules=RULES)
+print(records[0]["orderRef"], records[0]["currencyName"], records[0]["amountBand"])
+# -&gt; PO-PSU000049 Euro medium
+
+# Same rules work on to_json / to_ndjson / project, and as JSON text from a file:
+flat = json.loads(to_json(xml_payload, verb="Sync", rules=open("rules.json").read()))</pre>
+                </div>
+            </div>
+
+            <!-- USE CASE 10 -->
+            <div class="use-case-card" id="uc-reverse">
+                <div class="card-header">
+                    <span class="card-title">Use Case 10: Reverse Conversion (JSON &rarr; BOD)</span>
+                    <span class="tag green">New in v2.5.0</span>
+                </div>
+                <p><code class="inline">json_to_bod()</code> rebuilds the BOD envelope (root <code class="inline">&lt;Verb&gt;&lt;Noun&gt;</code>, Infor OAGIS namespace, <code class="inline">ApplicationArea</code>, <code class="inline">DataArea/&lt;Verb&gt;</code>, one noun per record). Input can be flattened records, NDJSON, or nested JSON. The key conventions are the same as the forward converter (<code class="inline">_@attr</code>, <code class="inline">_#text</code>, <code class="inline">_Line_0_</code>), so <code class="inline">to_records(include_header=True)</code> &rarr; <code class="inline">json_to_bod</code> &rarr; <code class="inline">to_records</code> round-trips. Reverse rules map foreign JSON onto BOD paths.</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>from BODtoJSON import json_to_bod, to_records
+
+# 1) Round trip: flattened records (with header) back to a BOD
+records = to_records(xml_payload, verb="Sync", include_header=True)
+xml_out = json_to_bod(records, verb="Sync", version_id="2.14.x")
+
+# 2) Nested JSON, keys relative to the noun
+#    "@name" = attribute, "#text" = element text, JSON arrays = repeated elements
+xml_out = json_to_bod(
+    {
+        "PurchaseOrderHeader": {
+            "DocumentID": {"ID": {"@variationID": "1", "#text": "PO-1001"}},
+            "ExtendedAmount": {"@currencyID": "EUR", "#text": 2500},
+        },
+        "PurchaseOrderLine": [{"LineNumber": 10}, {"LineNumber": 20}],
+    },
+    verb="Sync",
+    noun="PurchaseOrder",
+    action_code="Replace",                                   # DataArea/Sync/ActionCriteria
+    application_area={"Sender_LogicalID": "lid://infor.ln.ln01/3555"},
+)
+
+# 3) Foreign JSON + reverse rules (targets are BOD paths; default mode "only")
+REVERSE = {"rules": {
+    "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID": {"template": "PO-{order_id}"},
+    "PurchaseOrder_PurchaseOrderHeader_Status_Code": {
+        "case": "$status", "when": {"O": "Open", "C": "Closed"}, "default": "Unknown"},
+    "PurchaseOrder_PurchaseOrderHeader_CustomerParty_Name": {
+        "concat": ["$customer_first_name", "$customer_last_name"], "sep": " "},
+    "PurchaseOrder_PurchaseOrderLine_*_Item_ID": "$lines_*_sku",
+    "PurchaseOrder_PurchaseOrderLine_*_Quantity_#text": "$lines_*_qty",
+    "PurchaseOrder_PurchaseOrderLine_*_Quantity_@unitCode": {"upper": "$lines_*_uom"},
+}}
+order = {"order_id": 1001, "status": "O",
+         "customer": {"first_name": "Ada", "last_name": "Lovelace"},
+         "lines": [{"sku": "SKU-1", "qty": 5, "uom": "ea"}, {"sku": "SKU-2", "qty": 3, "uom": "kg"}]}
+xml_out = json_to_bod(order, verb="Sync", noun="PurchaseOrder", rules=REVERSE)</pre>
+                </div>
+                <p><strong>Output of example 3:</strong></p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;SyncPurchaseOrder xmlns="http://schema.infor.com/InforOAGIS/2" releaseID="9.2"&gt;
+  &lt;ApplicationArea&gt;
+    &lt;CreationDateTime&gt;2026-11-20T06:30:00Z&lt;/CreationDateTime&gt;
+  &lt;/ApplicationArea&gt;
+  &lt;DataArea&gt;
+    &lt;Sync/&gt;
+    &lt;PurchaseOrder&gt;
+      &lt;PurchaseOrderHeader&gt;
+        &lt;DocumentID&gt;
+          &lt;ID&gt;PO-1001&lt;/ID&gt;
+        &lt;/DocumentID&gt;
+        &lt;Status&gt;
+          &lt;Code&gt;Open&lt;/Code&gt;
+        &lt;/Status&gt;
+        &lt;CustomerParty&gt;
+          &lt;Name&gt;Ada Lovelace&lt;/Name&gt;
+        &lt;/CustomerParty&gt;
+      &lt;/PurchaseOrderHeader&gt;
+      &lt;PurchaseOrderLine&gt;
+        &lt;Item&gt;
+          &lt;ID&gt;SKU-1&lt;/ID&gt;
+        &lt;/Item&gt;
+        &lt;Quantity unitCode="EA"&gt;5&lt;/Quantity&gt;
+      &lt;/PurchaseOrderLine&gt;
+      &lt;PurchaseOrderLine&gt;
+        &lt;Item&gt;
+          &lt;ID&gt;SKU-2&lt;/ID&gt;
+        &lt;/Item&gt;
+        &lt;Quantity unitCode="KG"&gt;3&lt;/Quantity&gt;
+      &lt;/PurchaseOrderLine&gt;
+    &lt;/PurchaseOrder&gt;
+  &lt;/DataArea&gt;
+&lt;/SyncPurchaseOrder&gt;</pre>
+                </div>
+                <p><strong>Fidelity notes:</strong> namespace prefixes, comments, original root attributes (such as <code class="inline">xsi:schemaLocation</code>), tail text, and the interleaving of different sibling names are not preserved. Siblings are grouped by element name. Element names that contain the separator round-trip only from nested input or with a different <code class="inline">separator</code>. Values are written as text (<code class="inline">true</code> &rarr; <code class="inline">"true"</code>).</p>
+            </div>
+
+            <!-- USE CASE 11 -->
+            <div class="use-case-card" id="uc-cli">
+                <div class="card-header">
+                    <span class="card-title">Use Case 11: Command Line (bodtojson)</span>
+                    <span class="tag slate">New in v2.5.0</span>
+                </div>
+                <p>A stdlib <code class="inline">argparse</code> CLI is installed with the core package. Exit code <code class="inline">0</code> means success and <code class="inline">1</code> means a conversion or rules error (message on stderr).</p>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre># BOD -&gt; JSON with rules (json | ndjson | records)
+bodtojson to-json order.xml --verb Sync --rules rules.json --format records --include-header --indent 2
+
+# BOD -&gt; NDJSON file
+bodtojson to-json order.xml --format ndjson -o order.ndjson
+
+# JSON / NDJSON -&gt; BOD
+bodtojson to-bod order.json --verb Sync --noun PurchaseOrder --rules reverse_rules.json --action-code Replace -o order.xml
+
+# stdin / stdout, without the console script
+python -m BODtoJSON to-bod - &lt; records.json &gt; order.xml
+
+# Other to-bod options: --root, --namespace "" (omit), --release-id, --version-id,
+#                       --no-application-area, --separator, --compact</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- TRANSFORMATION RULES REFERENCE -->
+        <section id="rules-reference">
+            <h2>Transformation Rules Reference</h2>
+            <p>A rules config is either a plain object of <code class="inline">output_field: expression</code>, or <code class="inline">{&quot;mode&quot;: &quot;merge&quot;, &quot;drop&quot;: [&quot;glob*&quot;], &quot;rules&quot;: {...}}</code>. <strong>mode</strong> <code class="inline">"merge"</code> (default for BOD &rarr; JSON) keeps every flattened field and adds or overrides the rule outputs. <code class="inline">"only"</code> (default for <code class="inline">json_to_bod</code>) emits only the rule outputs. <strong>drop</strong> removes keys that match the glob patterns after the rules run (rule targets are kept). Rules run in order, so a later rule can use an earlier rule's output.</p>
+            <h3>Value expressions</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Expression</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">&quot;$Path&quot;</code></td>
+                            <td>Value of a flattened key. If it is missing, <code class="inline">Path_#text</code> is tried, so <code class="inline">$..._DocumentID_ID</code> works on elements that have attributes. <code class="inline">&quot;$$x&quot;</code> is the literal <code class="inline">&quot;$x&quot;</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">&quot;text&quot;</code>, <code class="inline">42</code>, <code class="inline">true</code>, <code class="inline">null</code></td>
+                            <td>Literal value.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;path&quot;: &quot;P&quot;, &quot;default&quot;: &quot;x&quot;}</code></td>
+                            <td>Lookup with a default when the key is missing or null.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;literal&quot;: [...]}</code></td>
+                            <td>Any JSON literal, including lists and objects.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;concat&quot;: [&quot;$A&quot;, &quot; &quot;, &quot;$B&quot;], &quot;sep&quot;: &quot;&quot;, &quot;skip_empty&quot;: true}</code></td>
+                            <td>Merge fields and strings. Empty parts are skipped by default.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;template&quot;: &quot;PO-{A}/{B}&quot;}</code></td>
+                            <td>String template. Placeholders are paths and missing values become <code class="inline">&quot;&quot;</code>. Write <code class="inline">{{</code> / <code class="inline">}}</code> for literal braces.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;if&quot;: cond, &quot;then&quot;: e, &quot;else&quot;: e}</code></td>
+                            <td>If/else.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;if&quot;: [{&quot;when&quot;: cond, &quot;then&quot;: e}, ...], &quot;else&quot;: e}</code></td>
+                            <td>Else-if chain. The first match wins.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;case&quot;: e, &quot;when&quot;: {&quot;A&quot;: e}, &quot;default&quot;: e, &quot;ignore_case&quot;: false}</code></td>
+                            <td>Case/switch.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;case&quot;: e, &quot;when&quot;: [{&quot;match&quot;: [&quot;A&quot;,&quot;B&quot;], &quot;then&quot;: e}]}</code></td>
+                            <td>Several values mapped to one result.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;coalesce&quot;: [e, ...]}</code></td>
+                            <td>First non-empty value.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;upper&quot;: e}</code> <code class="inline">{&quot;lower&quot;: e}</code> <code class="inline">{&quot;trim&quot;: e}</code></td>
+                            <td>Text helpers.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;replace&quot;: e, &quot;old&quot;: &quot;a&quot;, &quot;new&quot;: &quot;b&quot;}</code></td>
+                            <td>Replace text.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;substr&quot;: e, &quot;start&quot;: 0, &quot;end&quot;: 3}</code></td>
+                            <td>Python-style slice.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;number&quot;: e, &quot;default&quot;: 0}</code></td>
+                            <td>Convert to int/float.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h3>Conditions</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Condition</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">{&quot;path&quot;: &quot;P&quot;, &quot;op&quot;: &quot;eq&quot;, &quot;value&quot;: v}</code></td>
+                            <td>Compare a field. <code class="inline">value</code> is an expression, so <code class="inline">&quot;$Other&quot;</code> compares two fields.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;expr&quot;: e, &quot;op&quot;: ..., &quot;value&quot;: v}</code></td>
+                            <td>Compare any expression, for example a <code class="inline">concat</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">op</code></td>
+                            <td><code class="inline">eq ne gt ge lt le</code> (or <code class="inline">== != &gt; &gt;= &lt; &lt;=</code>), <code class="inline">in not_in</code> (list value), <code class="inline">contains not_contains starts_with ends_with</code>, <code class="inline">exists missing empty not_empty</code>. <code class="inline">&quot;ignore_case&quot;: true</code> is optional.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">{&quot;all&quot;: [...]}</code> <code class="inline">{&quot;any&quot;: [...]}</code> <code class="inline">{&quot;not&quot;: c}</code></td>
+                            <td>Combine conditions (also <code class="inline">and</code> / <code class="inline">or</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">&quot;$P&quot;</code></td>
+                            <td>True when the field is not empty.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Comparisons are numeric when both sides are numbers (<code class="inline">"2500"</code> &gt; <code class="inline">1000</code>) and text otherwise. Without <code class="inline">op</code>, a condition with <code class="inline">value</code> means <code class="inline">eq</code> and one without means <code class="inline">not_empty</code>.</p>
+            <p><strong>Repeated elements:</strong> a <code class="inline">*</code> segment binds to the index of repeated siblings. <code class="inline">PurchaseOrder_PurchaseOrderLine_*_Quantity</code> matches <code class="inline">..._PurchaseOrderLine_0_Quantity</code>, <code class="inline">..._1_Quantity</code>, and a single unindexed line. When the target contains <code class="inline">*</code>, the rule runs once per index.</p>
+            <p><strong>Safety:</strong> rules are validated when compiled (unknown keys, bad operators, nesting limit 64) and raise <code class="inline">BODTransformError</code>. Evaluation uses no <code class="inline">eval</code>/<code class="inline">exec</code>, attribute access, imports, or regular expressions.</p>
         </section>
 
         <!-- API REFERENCE -->
@@ -1354,38 +1707,43 @@ result = convert(xml_payload, verb="Sync")</pre>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code class="inline">project(bod_xml, verb, schema, include_header=True, coerce_booleans=True)</code></td>
+                            <td><code class="inline">project(bod_xml, verb, schema, include_header=True, coerce_booleans=True, rules=None)</code></td>
                             <td>
                                 <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
                                 <strong>verb</strong> (str): OAGIS Verb to strip (e.g. <code class="inline">"Sync"</code>).<br>
                                 <strong>schema</strong> (dict): Target field mapping rules.<br>
                                 <strong>include_header</strong> (bool): Include <code class="inline">ApplicationArea</code> &amp; Verb fields.<br>
-                                <strong>coerce_booleans</strong> (bool): Convert <code class="inline">"true"</code>/<code class="inline">"false"</code> strings to <code class="inline">bool</code>.
+                                <strong>coerce_booleans</strong> (bool): Convert <code class="inline">"true"</code>/<code class="inline">"false"</code> strings to <code class="inline">bool</code>.<br>
+                                <strong>rules</strong> (dict | str | TransformRules): Optional transformation rules applied before projection.
                             </td>
                             <td><code class="inline">List[Dict[str, Any]]</code></td>
                         </tr>
                         <tr>
-                            <td><code class="inline">to_records(bod_xml, verb, include_header=False)</code></td>
+                            <td><code class="inline">to_records(bod_xml, verb, include_header=False, rules=None)</code></td>
                             <td>
                                 <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
                                 <strong>verb</strong> (str): OAGIS Verb to strip.<br>
-                                <strong>include_header</strong> (bool): Merge header metadata into each record.
+                                <strong>include_header</strong> (bool): Merge header metadata into each record.<br>
+                                <strong>rules</strong>: Optional transformation rules.
                             </td>
                             <td><code class="inline">List[Dict[str, Any]]</code></td>
                         </tr>
                         <tr>
-                            <td><code class="inline">to_ndjson(bod_xml, verb)</code></td>
+                            <td><code class="inline">to_ndjson(bod_xml, verb, raise_on_error=False, rules=None, include_header=False)</code></td>
                             <td>
                                 <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
-                                <strong>verb</strong> (str): OAGIS Verb to strip.
+                                <strong>verb</strong> (str): OAGIS Verb to strip.<br>
+                                <strong>rules</strong>: Optional transformation rules.<br>
+                                <strong>include_header</strong> (bool): Add header fields to each line.
                             </td>
                             <td><code class="inline">str</code> (Newline-delimited compact JSON)</td>
                         </tr>
                         <tr>
-                            <td><code class="inline">to_json(bod_xml, verb)</code></td>
+                            <td><code class="inline">to_json(bod_xml, verb, raise_on_error=False, rules=None)</code></td>
                             <td>
                                 <strong>bod_xml</strong> (str): Raw OAGIS XML.<br>
-                                <strong>verb</strong> (str): OAGIS Verb to strip.
+                                <strong>verb</strong> (str): OAGIS Verb to strip.<br>
+                                <strong>rules</strong>: Optional transformation rules (first noun, no header).
                             </td>
                             <td><code class="inline">str</code> (Flat JSON string)</td>
                         </tr>
@@ -1396,6 +1754,32 @@ result = convert(xml_payload, verb="Sync")</pre>
                                 <strong>separator</strong> (str): Delimiter between nested tag names.
                             </td>
                             <td><code class="inline">BODConverter</code> instance</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">json_to_bod(data, verb="Sync", noun=None, *, rules=None, separator="_", namespace=INFOR_OAGIS_NS, root=None, release_id="9.2", version_id=None, application_area=None, include_application_area=True, action_code=None, flat=None, pretty=True, xml_declaration=True)</code></td>
+                            <td>
+                                <strong>data</strong>: JSON/NDJSON text, bytes, a dict, or a list of dicts (one noun per record). Flattened, nested, or mixed.<br>
+                                <strong>noun</strong>: Place keys relative to this noun.<br>
+                                <strong>rules</strong>: Reverse rules (default mode <code class="inline">"only"</code>).<br>
+                                <strong>action_code</strong>: Adds <code class="inline">ActionCriteria/ActionExpression/@actionCode</code>.<br>
+                                <strong>include_application_area</strong>: Generate <code class="inline">ApplicationArea/CreationDateTime</code> when none is given.
+                            </td>
+                            <td><code class="inline">str</code> (BOD XML)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">BODConverter(...).from_json(data, verb, noun, **kwargs)</code></td>
+                            <td>Same as <code class="inline">json_to_bod</code>, using the converter's separator, max_size, and max_depth.</td>
+                            <td><code class="inline">str</code> (BOD XML)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">apply_rules(record_or_records, rules)</code> / <code class="inline">TransformRules(config).apply(record)</code></td>
+                            <td>Apply rules to flattened dicts directly. <code class="inline">compile_rules()</code> validates once for reuse.</td>
+                            <td><code class="inline">dict</code> / <code class="inline">list[dict]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">BODParseError</code> / <code class="inline">BODStructureError</code> / <code class="inline">BODTransformError</code></td>
+                            <td>Malformed input / structure that cannot be converted / invalid rules.</td>
+                            <td>Exceptions</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1445,7 +1829,7 @@ result = convert(xml_payload, verb="Sync")</pre>
         </section>
 
         <footer>
-            <span>BODtoJSON v2.4.0 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | MIT License</span>
+            <span>BODtoJSON v2.5.0 | Author: <a href="https://www.linkedin.com/in/thekakodkar/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Niraj Kakodkar</a> | MIT License</span>
             <div class="footer-links">
                 <a href="https://github.com/thekakodkar/BODtoJSON" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://pypi.org/project/BODtoJSON/" target="_blank" rel="noopener noreferrer">PyPI</a>

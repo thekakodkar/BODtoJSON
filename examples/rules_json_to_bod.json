@@ -1,0 +1,20 @@
+{
+  "description": "Map a foreign order JSON to SyncPurchaseOrder BOD paths (json_to_bod / to-bod)",
+  "mode": "only",
+  "rules": {
+    "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID": {"template": "PO-{order_id}"},
+    "PurchaseOrder_PurchaseOrderHeader_Status_Code": {
+      "case": "$status",
+      "when": {"O": "Open", "C": "Closed", "X": "Cancelled"},
+      "default": "Unknown"
+    },
+    "PurchaseOrder_PurchaseOrderHeader_CustomerParty_Name": {
+      "concat": ["$customer_first_name", "$customer_last_name"],
+      "sep": " "
+    },
+    "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID": "$currency",
+    "PurchaseOrder_PurchaseOrderLine_*_Item_ID": "$lines_*_sku",
+    "PurchaseOrder_PurchaseOrderLine_*_Quantity_#text": "$lines_*_qty",
+    "PurchaseOrder_PurchaseOrderLine_*_Quantity_@unitCode": {"upper": "$lines_*_uom"}
+  }
+}

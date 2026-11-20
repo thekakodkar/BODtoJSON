@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(root_dir, 'src'))
 sys.path.insert(0, os.path.join(root_dir, 'tests'))
 
 try:
-    from BODtoJSON import to_json, to_ndjson, project, convert
+    from BODtoJSON import to_json, to_ndjson, to_records, project, convert, json_to_bod
     from config import Config
 except ImportError as e:
     print(f"CRITICAL: Resource mapping failed. {e}")
@@ -19,13 +19,34 @@ except ImportError as e:
 def run_business_validation(mode: str = "ndjson"):
     """
     Executes a transformation check to validate OAGIS-to-JSON flattening profiles.
-    Supported modes: 'ndjson', 'json', 'project', 'legacy'
+    Supported modes: 'ndjson', 'json', 'project', 'transform', 'bod', 'legacy'
     """
     print("=" * 60)
-    print(f"BODtoJSON v2.4.0 | Payload Validation Profile: [{mode.upper()}]")
+    print(f"BODtoJSON v2.5.0 | Payload Validation Profile: [{mode.upper()}]")
     print("=" * 60)
 
     try:
+        if mode == "transform":
+            rules_path = os.path.join(root_dir, "examples", "rules_purchase_order.json")
+            with open(rules_path, encoding="utf-8") as f:
+                rules = f.read()
+            records = to_records(Config.INPUT_VAR, "Sync", include_header=True, rules=rules)
+            formatted = json.dumps(records, indent=4)
+            with open("output_preview.json", "w", encoding="utf-8") as f:
+                f.write(formatted)
+            print("STATUS: SUCCESS (Transformation Rules)")
+            print(formatted)
+            return
+
+        if mode == "bod":
+            records = to_records(Config.INPUT_VAR, "Sync", include_header=True)
+            xml_out = json_to_bod(records, "Sync", version_id="2.14.x")
+            with open("output_preview.xml", "w", encoding="utf-8") as f:
+                f.write(xml_out)
+            print("STATUS: SUCCESS (JSON -> BOD round trip)")
+            print(xml_out)
+            return
+
         if mode == "project":
             sample_schema = {
                 "externalSystemId": "company[{Sync_AccountingEntityID}];PO;{PurchaseOrder_PurchaseOrderHeader_DisplayID}",
@@ -86,5 +107,5 @@ def run_business_validation(mode: str = "ndjson"):
 
 
 if __name__ == "__main__":
-    # Options: "ndjson", "json", "project", "legacy"
+    # Options: "ndjson", "json", "project", "transform", "bod", "legacy"
     run_business_validation(mode="ndjson")

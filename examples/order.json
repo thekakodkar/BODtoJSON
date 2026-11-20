@@ -1,0 +1,10 @@
+{
+  "order_id": 1001,
+  "status": "O",
+  "currency": "EUR",
+  "customer": {"first_name": "Ada", "last_name": "Lovelace"},
+  "lines": [
+    {"sku": "SKU-1", "qty": 5, "uom": "EA"},
+    {"sku": "SKU-2", "qty": 3, "uom": "KG"}
+  ]
+}

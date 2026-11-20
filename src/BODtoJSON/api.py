@@ -1,19 +1,25 @@
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from fastapi import Body, FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from BODtoJSON import (
+    INFOR_OAGIS_NS,
     BODParseError,
     BODStructureError,
+    BODTransformError,
     __version__,
     convert,
+    json_to_bod,
     project,
     to_json,
     to_ndjson,
+    to_records,
 )
+
+CLIENT_ERRORS = (BODParseError, BODStructureError, BODTransformError)
 
 MAX_BODY_SIZE = 10 * 1024 * 1024  # 10 MiB, aligned with library default
 
@@ -54,6 +60,28 @@ class ProjectRequest(BaseModel):
     verb: str = "Sync"
     schema_map: Dict[str, Any]
     include_header: bool = True
+    rules: Optional[Dict[str, Any]] = None
+
+
+class TransformRequest(BaseModel):
+    xml: str
+    verb: str = "Sync"
+    rules: Dict[str, Any]
+    include_header: bool = False
+
+
+class BODBuildRequest(BaseModel):
+    data: Any
+    verb: str = "Sync"
+    noun: Optional[str] = None
+    rules: Optional[Dict[str, Any]] = None
+    root: Optional[str] = None
+    namespace: Optional[str] = INFOR_OAGIS_NS
+    release_id: Optional[str] = "9.2"
+    version_id: Optional[str] = None
+    action_code: Optional[str] = None
+    include_application_area: bool = True
+    pretty: bool = True
 
 
 @app.get("/")
@@ -112,9 +140,53 @@ async def convert_to_standard_json(
 @app.post("/project")
 async def project_bod_schema(req: ProjectRequest):
     try:
-        items = project(req.xml, req.verb, req.schema_map, include_header=req.include_header)
+        items = project(
+            req.xml,
+            req.verb,
+            req.schema_map,
+            include_header=req.include_header,
+            rules=req.rules,
+        )
         return Response(content=json.dumps(items), media_type="application/json")
-    except (BODParseError, BODStructureError) as e:
+    except CLIENT_ERRORS as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=400)
+    except Exception as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
+@app.post("/transform")
+async def transform_bod_records(req: TransformRequest):
+    """Flatten every noun and apply declarative transformation rules."""
+    try:
+        items = to_records(
+            req.xml, req.verb, include_header=req.include_header, rules=req.rules
+        )
+        return Response(content=json.dumps(items), media_type="application/json")
+    except CLIENT_ERRORS as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=400)
+    except Exception as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
+@app.post("/convert/bod")
+async def convert_json_to_bod(req: BODBuildRequest):
+    """Reverse conversion: flattened or nested JSON records -> BOD XML."""
+    try:
+        xml = json_to_bod(
+            req.data,
+            req.verb,
+            req.noun,
+            rules=req.rules,
+            root=req.root,
+            namespace=req.namespace or None,
+            release_id=req.release_id or None,
+            version_id=req.version_id or None,
+            action_code=req.action_code,
+            include_application_area=req.include_application_area,
+            pretty=req.pretty,
+        )
+        return Response(content=xml, media_type="application/xml")
+    except CLIENT_ERRORS as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=400)
     except Exception as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)

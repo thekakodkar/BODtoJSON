@@ -1,3 +1,21 @@
+# BODtoJSON 2.5.0 — local test report
+
+Date: 20 November 2026 (Europe/Helsinki, EET, UTC+2)
+
+Scope: transformation rules (`transforms.py`), JSON → BOD (`reverse.py`), CLI (`cli.py`, `__main__.py`), and the API endpoints `/transform` and `/convert/bod`.
+
+| Check | Result |
+| ----- | ----- |
+| `ruff check src tests scripts` | All checks passed |
+| `mypy src` | No issues (8 source files) |
+| `pytest`, Python 3.13.5, `[api,dev]` | **224 passed**, coverage **98.8%** (gate 90%) |
+| `pytest`, Python 3.10.22, `[api,dev]` | **224 passed**, coverage 98.8% |
+| Core-only venv (no extras), mapper + safe_xml + transforms + reverse + CLI suites | **206 passed**, coverage 98.9% (`api.py` omitted) |
+| Round trip `to_records(include_header=True)` → `json_to_bod` → `to_records` | Identical for both sample BODs and a multi-noun, repeated-line, mixed-content case |
+| Runtime requirements | Still none (`dependencies = []`) |
+
+---
+
 # BODtoJSON 2.4.0 — local test report
 
 Date: 15 November 2026, 14:23 Europe/Helsinki (EET, UTC+2)

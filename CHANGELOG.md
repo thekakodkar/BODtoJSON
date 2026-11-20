@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.5.0] - Unreleased
+
+### Added
+- **Transformation rules** (`BODtoJSON.transforms`, `rules=` on `to_json`, `to_ndjson`, `to_records`, `project` and `BODConverter` methods). Rules are declarative JSON and are interpreted with no `eval`/`exec`:
+  - values: `"$Path"` lookups (with an automatic `_#text` fallback), literals, `path`/`default`, `concat` (with `sep` and `skip_empty`), `template`, `coalesce`, `upper`/`lower`/`trim`, `replace`, `substr`, `number`;
+  - conditionals: `if`/`then`/`else`, else-if chains, and `case`/`when`/`default` (map or `match` list, optional `ignore_case`);
+  - conditions: `eq ne gt ge lt le in not_in contains not_contains starts_with ends_with exists missing empty not_empty`, combined with `all`/`any`/`not`;
+  - `*` path segments run a rule once per repeated element (for example per `PurchaseOrderLine`);
+  - `mode` (`merge` / `only`) and `drop` glob patterns;
+  - validation when the rules are compiled, raising the new `BODTransformError`.
+- Public helpers: `TransformRules`, `compile_rules`, `apply_rules`, `BODTransformError`.
+- **JSON → BOD reverse conversion**: `json_to_bod()` and `BODConverter.from_json()`.
+  - Accepts flattened records (the forward output), NDJSON, nested JSON, or a mix.
+  - Rebuilds the root `<Verb><Noun>`, the Infor OAGIS namespace, `releaseID`/`versionID`, `ApplicationArea` (generated with `CreationDateTime` when absent), `DataArea/<Verb>` (optional `action_code`), and one noun per record.
+  - Honours the `@attr`, `#text` and repeated-index key conventions, so `to_records(include_header=True)` round-trips.
+  - Optional reverse rules (default mode `only`) map foreign JSON onto BOD paths.
+  - Output is written by a stdlib serializer with explicit escaping. Names and XML 1.0 characters are validated, and size and depth caps apply.
+- `to_ndjson(..., include_header=True)`.
+- **CLI**: the `bodtojson` console script and `python -m BODtoJSON`, with `to-json` (`--format json|ndjson|records`, `--rules`, `--include-header`) and `to-bod` (`--noun`, `--rules`, `--action-code`, `--namespace`, `--root`, ...).
+- **API**: `POST /transform`, `POST /convert/bod`, and optional `rules` on `POST /project`.
+- `examples/` folder: forward rules, reverse rules, and a sample order JSON.
+- Tests for rules, reverse conversion and round trips, the CLI, and the new API endpoints (224 tests in total). The core-only CI job now runs the rules, reverse and CLI suites without extras.
+
+### Changed
+- Version 2.5.0. There are still no runtime dependencies.
+- `bod_xml` parameters are now annotated `Union[str, bytes]`. Bytes were already accepted.
+- README, `docs/index.html`, and `scripts/inspect_payload.py` (new `transform` and `bod` modes) are updated. The Known Limitations section now describes reverse-conversion fidelity in place of "one-way only".
+
 ## [2.4.0] - 2026-11-15
 
 ### Security

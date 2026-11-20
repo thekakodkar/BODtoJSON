@@ -1,4 +1,4 @@
-# BODtoJSON v2.4.0
+# BODtoJSON v2.5.0
 
 **BODtoJSON** is a safe, enterprise-grade Python data liquidity engine designed to transform complex Infor OAGIS (XML) Business Object Documents into modern, AI-ready flattened JSON, streaming NDJSON, and declarative target schemas.
 
@@ -7,9 +7,17 @@
 </p>
 <center><img width="769" height="336" alt="BOD2JSon" src="https://github.com/user-attachments/assets/0b089179-f137-4d56-b717-85cffb20d622" /></center>
 
-v2.4.0 restores a **zero-runtime-dependency** core that is safe enough for Infor ION Scripting: XML is parsed with a stdlib-only hardened loader, while `to_records()` / `project()`, single-pass flattening, and the optional FastAPI extra stay unchanged.
+v2.5.0 adds **declarative transformation rules** (if/else, case/switch, concat/merge, templates and more) that run on BOD elements and attributes before the JSON is produced, and a **JSON → BOD reverse converter**. The core still has **zero runtime dependencies** and stays safe for Infor ION Scripting: XML is parsed with a stdlib-only hardened loader, and rules are interpreted, never `eval`-ed.
 
-## 🚀 What’s New in v2.4.0 (vs. v1.0.0)
+## 🆕 What’s New in v2.5.0
+
+* **Transformation Rules (`rules=`):** Pass a dict or JSON rules file to `to_json`, `to_ndjson`, `to_records` or `project`. Supported: `if`/`then`/`else` (with else-if chains), `case`/`when`/`default`, `concat` with separators, `template` strings such as `"PO-{DisplayID}"`, `coalesce`, `upper`/`lower`/`trim`, `replace`, `substr` and `number`. Conditions support `eq`, `ne`, `gt`, `ge`, `lt`, `le`, `in`, `not_in`, `contains`, `starts_with`, `ends_with`, `exists`, `missing`, `empty`, `not_empty`, combined with `all` / `any` / `not`.
+* **Per-line rules for repeated elements:** A `*` path segment (`PurchaseOrder_PurchaseOrderLine_*_Quantity`) runs a rule once per repeated sibling. It also matches a single, unindexed line.
+* **JSON → BOD (`json_to_bod`):** Rebuilds the BOD envelope (root `<Verb><Noun>`, Infor OAGIS namespace, `ApplicationArea`, `DataArea/<Verb>`, one noun per record) from flattened records, NDJSON, or nested JSON. The `@attr`, `#text` and repeated-index conventions match the forward converter, so `to_records(include_header=True)` → `json_to_bod` → `to_records` round-trips. Reverse rules map foreign JSON onto BOD paths.
+* **CLI:** `bodtojson to-json …` and `bodtojson to-bod …` (also `python -m BODtoJSON`), with `--rules`.
+* **API:** new `POST /transform` and `POST /convert/bod` endpoints, plus optional `rules` on `/project`.
+
+## 🚀 Core Capabilities (since v2.4.0)
 
 * **Zero-Dependency Safe Core:** No third-party runtime dependencies. XML is parsed with a stdlib-only hardened loader (`xml.parsers.expat` + `xml.etree.ElementTree`) that rejects DTD/entity declarations, XXE, billion-laughs and quadratic blowup, and enforces size and depth limits.
 
@@ -25,14 +33,16 @@ v2.4.0 restores a **zero-runtime-dependency** core that is safe enough for Infor
 
 ## 📈 Architectural Comparison
 
-| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.4.0)** | 
+| Feature | Legacy (v1.0.0) | **Enterprise Engine (v2.5.0)** | 
 | ----- | ----- | ----- | 
 | **Core Dependencies** | Relied on `xmltodict` | **None (Python stdlib only)** | 
 | **Memory & Speed** | Double-pass XML $\rightarrow$ Dict $\rightarrow$ Flat Dict | **Single-pass ElementTree traversal (\~50% lower memory)** | 
 | **Data Formats** | Standard Structured JSON string | **Standard JSON, Strict NDJSON, Native Dicts & Projected Schemas** | 
 | **Infor ION Scripting** | Manual XML + JSON loop boilerplate | **Declarative `project()` with automatic header context** | 
 | **Ingestion Target** | Application memory / NoSQL DBs | **Data Lakehouses (Snowflake/Databricks), Vector DBs & ION APIs** | 
-| **System Delivery** | Library imports only | **Library + Optional FastAPI Microservice Tier (`[api]`)** | 
+| **System Delivery** | Library imports only | **Library + CLI + Optional FastAPI Microservice Tier (`[api]`)** | 
+| **Field Transformations** | Custom Python per pipeline | **Declarative, eval-free rules: if/else, case, concat, template** | 
+| **Direction** | BOD → JSON only | **BOD → JSON and JSON → BOD** | 
 
 ## 🛠️ Installation
 
@@ -58,15 +68,26 @@ pip install "BODtoJSON[api]"
 BODtoJSON/
 ├── src/
 │   └── BODtoJSON/
-│       ├── __init__.py      # Package version (2.4.0) & API exports
+│       ├── __init__.py      # Package version (2.5.0) & API exports
 │       ├── safe_xml.py      # Stdlib-only hardened XML parser
 │       ├── mapper.py        # Dual-Pipeline & Projection Engine
+│       ├── transforms.py    # Declarative transformation rules (no eval)
+│       ├── reverse.py       # JSON -> BOD XML builder
+│       ├── cli.py           # `bodtojson` command line (argparse)
 │       └── api.py           # Optional FastAPI Microservice Ingestion Layer
+├── examples/
+│   ├── rules_purchase_order.json  # BOD -> JSON rules example
+│   ├── rules_json_to_bod.json     # JSON -> BOD rules example
+│   └── order.json                 # Sample foreign JSON order
 ├── tests/
 │   ├── data/                # Raw OAGIS XML Test Datasets (.xml)
 │   ├── config.py            # Test Data Configuration
 │   ├── conftest.py          # Pytest Dataset Loader Fixtures
 │   ├── test_mapper.py       # Core Engine Unit Tests, ION Projection & Regression Suite
+│   ├── test_safe_xml.py     # Hardened parser tests
+│   ├── test_transforms.py   # Transformation rule tests
+│   ├── test_reverse.py      # JSON -> BOD and round-trip tests
+│   ├── test_cli.py          # CLI tests
 │   └── test_api.py          # API Endpoint Verification
 ├── scripts/
 │   └── inspect_payload.py   # Multi-Profile Business Validation Utility
@@ -92,7 +113,7 @@ Verify transformation output profiles locally:
 python scripts/inspect_payload.py
 ```
 
-*Toggle the `mode` parameter within `inspect_payload.py` between `"ndjson"`, `"json"`, `"project"`, and `"legacy"` to inspect outputs in `output_preview.json`.*
+*Toggle the `mode` parameter within `inspect_payload.py` between `"ndjson"`, `"json"`, `"project"`, `"transform"`, `"bod"`, and `"legacy"` to inspect outputs in `output_preview.json` (or `output_preview.xml` for `"bod"`).*
 
 ## 💻 Code Examples
 
@@ -169,7 +190,130 @@ xml_input = """<SyncPurchaseOrder>...</SyncPurchaseOrder>"""
 legacy_json = convert(xml_input, verb="Sync")
 ```
 
-### 6. Running the Enterprise API Tier
+### 6. Transformation Rules: if/else, case, and merging fields (`rules=`)
+
+*Derive or rewrite fields from BOD elements and attributes before the JSON is produced. Rules are plain JSON, so they can live in a file or an ION script variable.*
+
+```python
+import json
+from BODtoJSON import to_json, to_records
+
+RULES = {
+    "mode": "merge",                    # keep all flattened fields, add/override these
+    "drop": ["ApplicationArea_*"],      # optional glob patterns to remove afterwards
+    "rules": {
+        # Merge: prefix + element value
+        "orderRef": {"concat": ["PO-", "$PurchaseOrder_PurchaseOrderHeader_DocumentID_ID"]},
+        # Merge two elements with a separator (empty values are skipped)
+        "contactName": {"concat": ["$PurchaseOrder_PurchaseOrderHeader_Contact_FirstName",
+                                   "$PurchaseOrder_PurchaseOrderHeader_Contact_LastName"],
+                        "sep": " "},
+        # Template with placeholders (header fields need include_header=True)
+        "company": {"template": "company[{Sync_AccountingEntityID}]"},
+        # case / switch on an attribute
+        "currencyName": {
+            "case": "$PurchaseOrder_PurchaseOrderHeader_ExtendedAmount_@currencyID",
+            "when": {"EUR": "Euro", "USD": "US Dollar"},
+            "default": "Other",
+        },
+        # if / else-if / else on another element's value
+        "amountBand": {
+            "if": [
+                {"when": {"path": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount",
+                          "op": "ge", "value": 10000}, "then": "high"},
+                {"when": {"path": "PurchaseOrder_PurchaseOrderHeader_ExtendedAmount",
+                          "op": "ge", "value": 1000}, "then": "medium"},
+            ],
+            "else": "low",
+        },
+        # Per repeated line: '*' binds to the line index
+        "PurchaseOrder_PurchaseOrderLine_*_lineKey": {
+            "concat": ["$PurchaseOrder_PurchaseOrderHeader_DisplayID",
+                       "$PurchaseOrder_PurchaseOrderLine_*_LineNumber"],
+            "sep": "-",
+        },
+    },
+}
+
+doc = json.loads(to_json(xml_input, verb="Sync", rules=RULES))
+records = to_records(xml_input, verb="Sync", include_header=True, rules=RULES)
+# Rules also work with to_ndjson(..., rules=...) and project(..., rules=...);
+# project() can reference rule outputs in its schema.
+```
+
+See [Transformation Rules reference](#-transformation-rules-reference) below and `examples/rules_purchase_order.json`.
+
+### 7. Reverse Conversion: JSON → BOD (`json_to_bod`)
+
+*Rebuild a BOD from the flattened output (round trip), from nested JSON, or from foreign JSON plus reverse rules.*
+
+```python
+from BODtoJSON import json_to_bod, to_records
+
+# Round trip: flattened records (with header) back to XML
+records = to_records(xml_input, verb="Sync", include_header=True)
+xml_out = json_to_bod(records, verb="Sync", version_id="2.14.x")
+
+# Nested JSON, keys relative to the noun; '@' = attribute, '#text' = element text, lists = repeats
+xml_out = json_to_bod(
+    {
+        "PurchaseOrderHeader": {
+            "DocumentID": {"ID": {"@variationID": "1", "#text": "PO-1001"}},
+            "ExtendedAmount": {"@currencyID": "EUR", "#text": 2500},
+        },
+        "PurchaseOrderLine": [{"LineNumber": 10}, {"LineNumber": 20}],
+    },
+    verb="Sync",
+    noun="PurchaseOrder",
+    action_code="Replace",
+    application_area={"Sender_LogicalID": "lid://infor.ln.ln01/3555"},
+)
+
+# Foreign JSON + reverse rules (rule targets are BOD paths; default mode is "only")
+REVERSE = {
+    "rules": {
+        "PurchaseOrder_PurchaseOrderHeader_DocumentID_ID": {"template": "PO-{order_id}"},
+        "PurchaseOrder_PurchaseOrderHeader_Status_Code": {
+            "case": "$status", "when": {"O": "Open", "C": "Closed"}, "default": "Unknown"},
+        "PurchaseOrder_PurchaseOrderLine_*_Item_ID": "$lines_*_sku",
+        "PurchaseOrder_PurchaseOrderLine_*_Quantity_@unitCode": {"upper": "$lines_*_uom"},
+        "PurchaseOrder_PurchaseOrderLine_*_Quantity_#text": "$lines_*_qty",
+    }
+}
+xml_out = json_to_bod(order_json, verb="Sync", noun="PurchaseOrder", rules=REVERSE)
+```
+
+Output shape:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<SyncPurchaseOrder xmlns="http://schema.infor.com/InforOAGIS/2" releaseID="9.2">
+  <ApplicationArea>
+    <CreationDateTime>2026-11-20T06:30:00Z</CreationDateTime>
+  </ApplicationArea>
+  <DataArea>
+    <Sync>
+      <ActionCriteria>
+        <ActionExpression actionCode="Replace"/>
+      </ActionCriteria>
+    </Sync>
+    <PurchaseOrder>...</PurchaseOrder>
+  </DataArea>
+</SyncPurchaseOrder>
+```
+
+Options: `noun`, `rules`, `separator`, `namespace` (`None` to omit), `root`, `release_id`, `version_id`, `application_area`, `include_application_area`, `action_code`, `flat`, `pretty`, `xml_declaration`, `max_size`, `max_depth`. `BODConverter(...).from_json(...)` uses the converter's separator and limits.
+
+### 8. Command Line (`bodtojson`)
+
+```bash
+bodtojson to-json order.xml --verb Sync --rules examples/rules_purchase_order.json --format records --include-header --indent 2
+bodtojson to-json order.xml --format ndjson -o order.ndjson
+bodtojson to-bod order.json --verb Sync --noun PurchaseOrder --rules examples/rules_json_to_bod.json --action-code Replace -o order.xml
+python -m BODtoJSON to-bod - < records.json > order.xml
+```
+
+### 9. Running the Enterprise API Tier
 
 Launch the microservice locally:
 
@@ -177,11 +321,65 @@ Launch the microservice locally:
 uvicorn BODtoJSON.api:app --reload
 ```
 
-Open `http://127.0.0.1:8000/docs` to test `/convert/ndjson`, `/convert/json`, and `/project` directly via Swagger UI.
+Open `http://127.0.0.1:8000/docs` to test `/convert/ndjson`, `/convert/json`, `/project`, `/transform`, and `/convert/bod` directly via Swagger UI.
+
+| Endpoint | Body | Returns |
+| ----- | ----- | ----- |
+| `POST /transform` | `{"xml", "verb", "rules", "include_header"}` | JSON array of transformed records |
+| `POST /project` | `{"xml", "verb", "schema_map", "include_header", "rules"?}` | Projected items (rules run first) |
+| `POST /convert/bod` | `{"data", "verb", "noun"?, "rules"?, "action_code"?, "namespace"?, "release_id"?, "version_id"?, "root"?, "include_application_area", "pretty"}` | `application/xml` BOD |
+
+## 🧩 Transformation Rules Reference
+
+A rules config is either a plain object of `output_field: expression`, or:
+
+```json
+{"mode": "merge", "drop": ["glob*"], "rules": {"field": "expression"}}
+```
+
+* `mode`: `"merge"` (default for BOD → JSON) keeps every flattened field and adds or overrides the rule outputs. `"only"` emits only the rule outputs (default for `json_to_bod`).
+* `drop`: glob patterns (`*` = any characters) removed after the rules run. Rule targets are never dropped.
+* Rules run in order. A later rule can read an earlier rule's output.
+
+**Values**
+
+| Expression | Meaning |
+| ----- | ----- |
+| `"$Path"` | Value of a flattened key. If `Path` is missing, `Path_#text` is tried, so `$..._DocumentID_ID` works when `ID` has attributes. |
+| `"text"`, `42`, `true`, `null` | Literal. Use `"$$x"` for a literal starting with `$`. |
+| `{"path": "Path", "default": "x"}` | Lookup with a default when missing or null. |
+| `{"literal": [..]}` | Any JSON literal, including lists and objects. |
+| `{"concat": ["$A", " ", "$B"], "sep": "", "skip_empty": true}` | Merge values and strings. Empty values are skipped by default. |
+| `{"template": "PO-{A}/{B}"}` | Placeholders are paths. Missing values become `""`. Write `{{` / `}}` for literal braces. |
+| `{"if": cond, "then": e, "else": e}` | Conditional. |
+| `{"if": [{"when": cond, "then": e}, ...], "else": e}` | Else-if chain. The first matching branch wins. |
+| `{"case": e, "when": {"A": e, ...}, "default": e, "ignore_case": false}` | Switch on a value. |
+| `{"case": e, "when": [{"match": ["A", "B"], "then": e}], "default": e}` | Several values mapped to one result. |
+| `{"coalesce": [e, ...]}` | First non-empty value. |
+| `{"upper": e}` / `{"lower": e}` / `{"trim": e}` | Text helpers. |
+| `{"replace": e, "old": "a", "new": "b"}` | Text replace. |
+| `{"substr": e, "start": 0, "end": 3}` | Python-style slice. |
+| `{"number": e, "default": 0}` | Convert to int/float. |
+
+**Conditions**
+
+| Condition | Meaning |
+| ----- | ----- |
+| `{"path": "P", "op": "eq", "value": v}` | Compare a field. `value` is an expression, so `"$Other"` compares two fields. |
+| `{"expr": e, "op": ..., "value": v}` | Compare any expression, for example a `concat`. |
+| `op` | `eq` `ne` `gt` `ge` `lt` `le` (or `==` `!=` `>` `>=` `<` `<=`), `in` `not_in` (list value), `contains` `not_contains` `starts_with` `ends_with`, `exists` `missing` `empty` `not_empty`. `"ignore_case": true` is optional. |
+| `{"all": [..]}` / `{"any": [..]}` / `{"not": c}` | Combine conditions. |
+| `"$P"` | True when the field is not empty. |
+
+Comparisons are numeric when both sides are numbers (`"2500"` vs `1000`) and text otherwise. `eq` with a numeric `value` compares numerically (`"2"` equals `2`). Without `op`, a condition with `value` means `eq` and one without means `not_empty`.
+
+**Repeated elements:** A `*` segment binds to the index of repeated siblings. `PurchaseOrder_PurchaseOrderLine_*_Quantity` matches `..._PurchaseOrderLine_0_Quantity`, `..._PurchaseOrderLine_1_Quantity`, and the single unindexed `..._PurchaseOrderLine_Quantity`. When the target has `*`, the rule runs once per index found and writes to the matching target key. Two `*` segments bind positionally, for lines inside lines.
+
+**Safety:** Rules are validated when they are compiled (unknown keys, bad operators, and a nesting limit of 64), and then interpreted. There is no `eval`, `exec`, attribute access, import, or regular expression from rule text. Invalid rules raise `BODTransformError` even when `raise_on_error=False`, because they are configuration errors.
 
 ## 🤝 Commercial Value
 
-By normalizing complex ERP structures into safe, flat JSON, streaming NDJSON, and projected API payloads, **BODtoJSON v2.4.0** stays at zero third-party runtime dependencies and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
+By normalizing complex ERP structures into safe, flat JSON, streaming NDJSON, and projected API payloads (and back to BOD XML when needed), **BODtoJSON v2.5.0** stays at zero third-party runtime dependencies and reduces AI, Lakehouse, and Infor ION integration overhead by up to 90%.
 
 **Author:** Niraj Kakodkar
 
@@ -196,7 +394,14 @@ The optional API (`pip install "BODtoJSON[api]"`) is unauthenticated and caps re
 
 ## Known Limitations
 
-- Flattening is lossy and one-way. There is no JSON → BOD reverse mapping.
+- Flattening is lossy. `json_to_bod` rebuilds an equivalent BOD, not a byte-identical one:
+  - Namespace prefixes, attribute namespaces (for example `xsi:`), comments, processing instructions, and the original root attributes (`xsi:schemaLocation`, `versionID`) are not kept. The root gets the default Infor OAGIS namespace plus `releaseID` (and `versionID` if you pass it).
+  - Sibling order is grouped by element name. Interleaved siblings such as `<A/><B/><A/>` come back as `<A/><A/><B/>`. Within a parent, element groups appear in the order their first key appears.
+  - Whitespace-only text and tail text after child elements are not kept. Values are written as text, so `true` becomes `"true"` and `2500` becomes `"2500"`.
+  - Empty elements (`null`) come back as `<Tag/>`.
+  - Key names are split on the separator. Element names that contain the separator (for example `Line_Item` with the default `_`) only round-trip from nested JSON input, or with a different `separator`.
+  - Attribute names cannot contain `:`.
+- Transformation rules work on flattened keys. Rules that need the header (`Sync_...`, `ApplicationArea_...`) need `include_header=True` (`to_records`, `to_ndjson`, `project`). `to_json` never includes the header.
 - `to_json()` returns only the **first** noun under `DataArea`. Use `to_records()` or `to_ndjson()` to get all nouns.
 - The optional FastAPI extra is unauthenticated. Deploy it only on a trusted network or behind your own authentication/authorization.
 - Mixed content (text + child elements) preserves the direct text as `_#text` where present; tail text after children is not specially handled beyond ElementTree defaults.
